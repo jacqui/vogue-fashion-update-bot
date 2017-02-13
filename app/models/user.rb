@@ -85,7 +85,7 @@ class User < ApplicationRecord
   def self.create_with_sent_message(message)
     u = User.where(fbid: message.sender['id']).first_or_create
     puts "User: #{u.id} - #{u.fbid}"
-    sent_message = SentMessage.create(user_id: u.id, sent: false)
+    sent_message = SentMessage.create(user_id: u.id)
 
     return sent_message
   end
