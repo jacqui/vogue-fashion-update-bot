@@ -21,8 +21,9 @@
     </div>
     <div class="col-md-4">
       <h2>Status</h2>
-      <p>How many people have talked to the bot? What messages have we sent or received? All that info is here.</p>
-      <p><%= link_to "View", sent_messages_path, class: "btn btn-secondary", role: "button" %></p>
+      <p>How many people have talked to the bot? What messages have we <%= link_to "sent", sent_messages_path %> or <%= link_to "received", messages_path %>? All that info is here.</p>
+      <p><%= link_to "Sent", sent_messages_path, class: "btn btn-secondary", role: "button" %></p>
+      <p><%= link_to "Received", sent_messages_path, class: "btn btn-secondary", role: "button" %></p>
     </div>
   </div>
 
