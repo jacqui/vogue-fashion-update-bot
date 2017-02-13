@@ -69,7 +69,7 @@ class Show < ApplicationRecord
         end
 
         begin
-          user.deliver_message_for(title, url, "View the Show")
+          user.deliver_message_for(title, url, image_url, "View the Show")
         rescue => e
           puts e
         end

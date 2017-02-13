@@ -47,7 +47,7 @@ class User < ApplicationRecord
     text
   end
 
-  def deliver_message_for(message_title, message_url, button_text)
+  def deliver_message_for(message_title, message_url, image_url, button_text)
     puts "Delivering message for user #{id}: #{message_title}"
     Bot.deliver({
       recipient: {
