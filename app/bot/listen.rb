@@ -30,12 +30,12 @@ Bot.on :message do |message|
         }
       }
     )
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
 
   when /designers|settings/i
     text = user.designers_following_text
     message.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
   when /latest shows|upcoming shows|upcoming/i
     if Show.upcoming.any?
       text = Content.find_by_label("upcoming_shows").body
@@ -49,16 +49,16 @@ Bot.on :message do |message|
       text = Content.find_by_label("no_upcoming_shows").body
       message.reply(text: text)
     end
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
     puts text
   when /our picks|highlights|best/i
     text = Content.find_by_label("our_picks").body
     message.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
   when /help/i
     text = Content.find_by_label("help").body
     message.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
   else
     if brand = Brand.where("title ilike ?", message.text.downcase).first
       puts "Found matching brand: #{brand.id} - #{brand.title}"
@@ -78,17 +78,17 @@ Bot.on :message do |message|
             }
           }
         )
-        sent_message.update!(text: brand_question.text, sent: true, sent_at: Time.now)
+        sent_message.update!(text: brand_question.text, sent_at: Time.now)
 
       # Failed finding possible set answers for the question about brands
       elsif brand_question
         message.reply(text: brand_question.text).body
-        sent_message.update!(text: brand_question.text, sent: true, sent_at: Time.now)
+        sent_message.update!(text: brand_question.text, sent_at: Time.now)
       # Failed finding the brand question at all, fallback to content
       else
         text = Content.find_by_label("brand_question").body
         message.reply(text: text)
-        sent_message.update!(text: text, sent: true, sent_at: Time.now)
+        sent_message.update!(text: text, sent_at: Time.now)
       end
 
       # Failed finding a match for the brand entered
@@ -96,7 +96,7 @@ Bot.on :message do |message|
       puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
       text = Content.find_by_label("unrecognised").body
       message.reply(text: "#{text} '#{message.text}'")
-      sent_message.update!(text: text, sent: true, sent_at: Time.now)
+      sent_message.update!(text: text, sent_at: Time.now)
     end
   end
 end
@@ -132,7 +132,7 @@ Bot.on :postback do |postback|
         else
           text = Content.find_by_label("no_shows_for_brand").body
           postback.reply(text: text)
-          sent_message.update!(text: text, sent: true, sent_at: Time.now)
+          sent_message.update!(text: text, sent_at: Time.now)
         end
       end
       if answer.action == "send_latest_news"
@@ -160,14 +160,14 @@ Bot.on :postback do |postback|
                 ]
               }
             })
-          sent_message.update!(article: article, text: article.title, sent: true, sent_at: Time.now)
+          sent_message.update!(article: article, text: article.title, sent_at: Time.now)
         end
       end
 
     else
       text = Content.find_by_label("unrecognised").body
       postback.reply(text: text)
-      sent_message.update!(text: text, sent: true, sent_at: Time.now)
+      sent_message.update!(text: text, sent_at: Time.now)
     end
 
   when /^answer:/
@@ -184,7 +184,7 @@ Bot.on :postback do |postback|
     begin
       appropriate_response = @answer.appropriate_response
       postback.reply(text: appropriate_response.text)
-      sent_message.update!(text: appropriate_response.text, sent: true, sent_at: Time.now)
+      sent_message.update!(text: appropriate_response.text, sent_at: Time.now)
     rescue => e
       puts e
       puts "failed finding an appropriate_response for answer ##{@answer.id}"
@@ -229,16 +229,16 @@ Bot.on :postback do |postback|
           }
         }
       )
-      sent_message.update!(text: @next_question.text, sent: true, sent_at: Time.now)
+      sent_message.update!(text: @next_question.text, sent_at: Time.now)
     elsif @next_question
       postback.reply(text: @next_question.text)
-      sent_message.update!(text: @next_question.text, sent: true, sent_at: Time.now)
+      sent_message.update!(text: @next_question.text, sent_at: Time.now)
     end
 
   when /my-designers|settings|designers|prefs|preferences/i
     text = user.designers_following_text
     postback.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
 
   when 'get_started'
     @question = Question.starting
@@ -256,12 +256,12 @@ Bot.on :postback do |postback|
         }
       }
     )
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
 
   when /OUR_PICKS|highlights/i
     text = Content.find_by_label("our_picks").body
     postback.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
 
   when /upcoming/i
     if Show.upcoming.any?
@@ -275,16 +275,16 @@ Bot.on :postback do |postback|
       text = Content.find_by_label("no_upcoming_shows").body
     end
     postback.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
   when /help/i
     text = Content.find_by_label("help").body
     postback.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
   else
     puts postback.payload
     text = "Unknown postback: #{postback.payload}"
     postback.reply(text: text)
-    sent_message.update!(text: text, sent: true, sent_at: Time.now)
+    sent_message.update!(text: text, sent_at: Time.now)
   end
 
   @conversation.update(last_message_sent_at: Time.now)
