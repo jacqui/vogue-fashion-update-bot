@@ -80,4 +80,5 @@ class User < ApplicationRecord
     }, access_token: ENV['ACCESS_TOKEN'])
     user.last_message_sent_at = Time.now
     user.save!
+  end
 end
