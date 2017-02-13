@@ -201,6 +201,9 @@ Bot.on :postback do |postback|
       puts "*** SUBSCRIBE TO TOP STORIES ***"
       user.top_stories_subscription = true
       user.save!
+
+      user.send_top_stories(4)
+
     end
 
     @next_question = if appropriate_response.next_question.present?

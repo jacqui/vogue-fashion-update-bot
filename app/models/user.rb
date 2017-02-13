@@ -4,6 +4,12 @@ class User < ApplicationRecord
   has_many :brands, -> { distinct }, through: :subscriptions
   has_and_belongs_to_many :broadcasts
 
+  def send_top_stories(quantity = 4)
+    articles = Article.where(tag: "top-stories").order("updated_at DESC").limit(quantity)
+    articles.each do |article|
+      self.deliver_message_for(article.title, article.url, article.image_url, "View the Article")
+    end
+  end
   def subscribed_to_shows?
     !shows_subscription.blank?
   end

@@ -1,4 +1,45 @@
 namespace :articles do
+  desc "find the articles for user top stories subscriptions..."
+  task top: :environment do
+    require 'http'
+    url = "http://vg.prod.api.condenet.co.uk/0.0/list/slug/top-stories?expand=list.list_items.object.article.images.default?published=1"
+    data = HTTP.get(url).parse
+    byebug
+
+    if (data.empty? || data['data'].nil? || data['data']['list_items'].nil? )
+      puts "Failed to get accurate article data for top stories"
+      exit
+    end
+
+    listData = data['data']['list_items']
+
+    tag = "top-stories"
+    counter = 0
+    listData.each do |itemData|
+      next if counter > 4
+      list_item = itemData['object']['data'] rescue nil
+
+      next if list_item.nil?
+
+      imageUrl = nil
+
+      imageUid = if list_item['images'] && list_item['images']['default'] && list_item['images']['default']['uid']
+                   list_item['images']['default']['uid']
+                 end
+      if imageUid
+        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
+      end
+
+      articleUrl = "http://vogue.co.uk/article/uid/#{list_item['uid']}"
+      if article = Article.where(title: list_item['title']).first
+        puts "found existing article: #{article.id} #{article.title}"
+      elsif article = Article.create(title: list_item['title'], url: articleUrl, publish_time: list_item['published_at'], tag: tag, image_url: imageUrl)
+        puts "created article: #{article.id} #{article.title}"
+      end
+      counter += 1
+    end
+  end
+
   desc "find the articles for user subscriptions..."
   task subs: :environment do
     require 'http'

@@ -6,6 +6,7 @@ class Article < ApplicationRecord
 
   after_create :setup_messages
 
+
   def setup_messages
     puts "Setting up messages for delivery: '#{title}'..."
     brands = Brand.where(slug: tag)
