@@ -5,7 +5,7 @@ namespace :brands do
     require "addressable/uri"
     
     puts "Brands count: #{Brand.count}"
-    brands = paginated_get("tag")
+    brands = brand_paginated_get("tag")
     brands.each do |brand|
       Brand.create!(title: brand['title'], slug: brand['slug'], uid: brand['uid'])
     end
@@ -26,13 +26,13 @@ def brands_url(path, params = {})
   })
 end
     
-def get(path, params = {})
+def brand_get(path, params = {})
   brand_url = brands_url(path, params)
   puts brand_url
   HTTP.get(brand_url).parse
 end
 
-def paginated_get(path, options = {})
+def brand_paginated_get(path, options = {})
   params  = options.dup
   per_page = params.delete(:per_page) { 100 }
   page = 1
@@ -40,7 +40,7 @@ def paginated_get(path, options = {})
   results = []
 
   loop do
-    data = get(path, { page: page, per_page: per_page }.merge(params))
+    data = brand_get(path, { page: page, per_page: per_page }.merge(params))
 
     break if (data.empty? || data['data'].nil?)
     items = data['data']['items']
