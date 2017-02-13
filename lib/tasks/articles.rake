@@ -1,6 +1,6 @@
 namespace :articles do
-  desc "find the last article tagged..."
-  task recent: :environment do
+  desc "find the articles for user subscriptions..."
+  task subs: :environment do
     require 'http'
     Subscription.all.each do |sub|
       puts "#{sub.id}: #{sub.brand.title} - #{sub.user.fbid}"
@@ -27,6 +27,7 @@ namespace :articles do
     end
   end
 
+  desc "Populate the db with articles tagged for brands"
   task brands: :environment do
     require 'http'
     Brand.all.each do |brand|
