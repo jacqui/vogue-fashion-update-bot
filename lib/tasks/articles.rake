@@ -4,7 +4,6 @@ namespace :articles do
     require 'http'
     url = "http://vg.prod.api.condenet.co.uk/0.0/list/slug/top-stories?expand=list.list_items.object.article.images.default?published=1"
     data = HTTP.get(url).parse
-    byebug
 
     if (data.empty? || data['data'].nil? || data['data']['list_items'].nil? )
       puts "Failed to get accurate article data for top stories"
