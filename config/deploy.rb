@@ -1,7 +1,7 @@
 # config valid only for current version of Capistrano
 lock "3.7.2"
 
-set :application, "fb-messenger-runway-bot"
+set :application, "messenger-bot"
 set :repo_url, "git@github.com:conde-nast-international/fbmessenger-runway-bot.git"
 
 # Defaults to false
