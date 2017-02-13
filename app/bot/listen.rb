@@ -15,7 +15,7 @@ Bot.on :message do |message|
   puts "Stored a record of this message: #{msg.id}"
 
   case message.text
-  when /gogo/i
+  when /start/i
     @question = Question.starting
     text = @question.text
     buttons = @question.possible_answers.map do |pa|
@@ -245,8 +245,8 @@ Bot.on :postback do |postback|
 
   when /OUR_PICKS|highlights/i
     text = Content.find_by_label("our_picks").body
-    text = "Our picks of today's runway shows are TBD..."
     postback.reply(text: text)
+
   when /upcoming/i
     if Show.upcoming.any?
       text = Content.find_by_label("upcoming_shows").body + " "
