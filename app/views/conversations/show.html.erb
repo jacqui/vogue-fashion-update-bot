@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>User:</strong>
+  <%= @conversation.user %>
+</p>
+
+<p>
+  <strong>Started at:</strong>
+  <%= @conversation.started_at %>
+</p>
+
+<p>
+  <strong>Last message sent at:</strong>
+  <%= @conversation.last_message_sent_at %>
+</p>
+
+<p>
+  <strong>Transcript:</strong>
+  <%= @conversation.transcript %>
+</p>
+
+<%= link_to 'Edit', edit_conversation_path(@conversation) %> |
+<%= link_to 'Back', conversations_path %>

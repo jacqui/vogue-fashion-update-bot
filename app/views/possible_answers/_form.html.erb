@@ -1,0 +1,46 @@
+<%= form_for(possible_answer) do |f| %>
+  <% if possible_answer.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(possible_answer.errors.count, "error") %> prohibited this possible_answer from being saved:</h2>
+
+      <ul>
+      <% possible_answer.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :question %>
+    <%= link_to possible_answer.question.text, possible_answer.question %>
+  </div>
+
+  <div class="field">
+    <%= f.label :value %>
+    <%= f.text_field :value %>
+  </div>
+
+  <div class="field">
+    <%= f.label :category %>
+    <%= f.text_field :category %>
+  </div>
+
+  <div class="field">
+    <%= f.label :sort_order %>
+    <%= f.number_field :sort_order %>
+  </div>
+
+  <div class="field">
+    <%= f.label :brand, "Choose a brand if this answer correlates to the name of one, only:" %>
+    <%= f.select :brand_id do %>
+      <% Brand.all.each do |brand| %>
+        <%= content_tag(:option, brand.title, value: brand.id) %>
+      <% end %>
+    <% end %>
+      
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

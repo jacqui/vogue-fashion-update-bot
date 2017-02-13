@@ -1,0 +1,41 @@
+<div class="container" style="margin-top: 70px">
+  <div class="row">
+
+    <table class="table">
+      <tbody>
+        <tr>
+          <td><strong>Message ID:</strong></td>
+          <td><%= @message.mid %></td>
+        </tr>
+        <tr>
+          <td><strong>Senderid:</strong></td>
+          <td><%= @message.senderid %></td>
+        </tr>
+        <tr>
+          <td><strong>Seq:</strong></td>
+          <td><%= @message.seq %></td>
+        </tr>
+        <tr>
+          <td><strong>Sent at:</strong></td>
+          <td><%= @message.sent_at %></td>
+        </tr>
+        <tr>
+          <td><strong>Text:</strong></td>
+          <td><%= @message.text %></td>
+        </tr>
+        <% unless @message.attachments.blank? %>
+        <tr>
+          <td><strong>Attachments:</strong></td>
+          <td><%= @message.attachments %></td>
+        </tr>
+      <% end %>
+        <% unless @message.quick_reply.blank? %>
+        <tr>
+          <td><strong>Quick reply:</strong></td>
+          <td><%= @message.quick_reply %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

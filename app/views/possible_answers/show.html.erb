@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Question:</strong>
+  <%= @possible_answer.question %>
+</p>
+
+<p>
+  <strong>Value:</strong>
+  <%= @possible_answer.value %>
+</p>
+
+<p>
+  <strong>Type:</strong>
+  <%= @possible_answer.type %>
+</p>
+
+<p>
+  <strong>Order:</strong>
+  <%= @possible_answer.order %>
+</p>
+
+<%= link_to 'Edit', edit_possible_answer_path(@possible_answer) %> |
+<%= link_to 'Back', possible_answers_path %>

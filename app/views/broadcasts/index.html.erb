@@ -1,0 +1,28 @@
+<div class="container" style="margin-top: 70px">
+<div class="row">
+<div class="page-header">
+  <h1>Broadcast Messages</h1>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Text</th>
+      <th colspan="2"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @broadcasts.each do |broadcast| %>
+      <tr>
+        <td><%= link_to broadcast.text, broadcast %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Broadcast Message', new_broadcast_path %>
+</div>
+</div>

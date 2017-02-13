@@ -1,0 +1,26 @@
+<div class="container" style="margin-top: 70px">
+  <div class="row">
+    <div class="page-header">
+      <h1>Edit Message Contents</h1>
+    </div>
+    
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Label</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @contents.each do |content| %>
+        <tr>
+          <td><%= link_to content.title, edit_content_path(content) %></td>
+          <td><%= content.label %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  </div>
+</div>

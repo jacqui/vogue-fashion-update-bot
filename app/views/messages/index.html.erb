@@ -1,0 +1,29 @@
+<div class="container" style="margin-top: 70px">
+  <div class="row">
+
+<div class="page-header">
+  <h1>Received Messages</h1>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Sender ID</th>
+      <th>Text</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @messages.each do |message| %>
+      <tr>
+        <td><%= link_to message.id, message %></td>
+        <td><%= message.senderid %></td>
+        <td><%= message.text %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+</div>
+</div>

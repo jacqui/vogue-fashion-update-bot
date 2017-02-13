@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Possible Answers</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Question</th>
+      <th>Value</th>
+      <th>Type</th>
+      <th>Order</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @possible_answers.each do |possible_answer| %>
+      <tr>
+        <td><%= possible_answer.question %></td>
+        <td><%= possible_answer.value %></td>
+        <td><%= possible_answer.type %></td>
+        <td><%= possible_answer.order %></td>
+        <td><%= link_to 'Show', possible_answer %></td>
+        <td><%= link_to 'Edit', edit_possible_answer_path(possible_answer) %></td>
+        <td><%= link_to 'Destroy', possible_answer, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Possible Answer', new_possible_answer_path %>

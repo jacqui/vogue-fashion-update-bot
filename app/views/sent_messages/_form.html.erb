@@ -1,0 +1,52 @@
+<%= form_for(sent_message) do |f| %>
+  <% if sent_message.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(sent_message.errors.count, "error") %> prohibited this sent_message from being saved:</h2>
+
+      <ul>
+      <% sent_message.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :type %>
+    <%= f.text_field :type %>
+  </div>
+
+  <div class="field">
+    <%= f.label :brand_id %>
+    <%= f.number_field :brand_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :user_id %>
+    <%= f.number_field :user_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :article_id %>
+    <%= f.number_field :article_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :show_id %>
+    <%= f.number_field :show_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :sent_at %>
+    <%= f.datetime_select :sent_at %>
+  </div>
+
+  <div class="field">
+    <%= f.label :text %>
+    <%= f.text_area :text %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

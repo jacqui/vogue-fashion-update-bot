@@ -1,0 +1,33 @@
+<div class="container" style="margin-top: 70px">
+  <div class="row">
+
+<div class="page-header">
+  <h1>Sent Messages</h1>
+</div>
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>User</th>
+      <th>Sent at</th>
+      <th>Text</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @sent_messages.each do |sent_message| %>
+      <tr>
+        <td><%= link_to sent_message.reason, sent_message %></td>
+        <td><%= link_to sent_message.user_id %></td>
+        <td><%= sent_message.sent_at %></td>
+        <td><%= sent_message.text %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+
+  </div>
+</div>
