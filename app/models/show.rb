@@ -28,33 +28,12 @@ class Show < ApplicationRecord
     CSV.foreach(Rails.root.join('data', csvfile)) do |row|
       next if row.first == "EXCLUDE" || row.first == "date"
 
-      if d = row[0]
-        month, day, year = d.split('/')
+      parsed_date = Show.format_date(row[0], row[1])
+      title = row[2].strip.titleize.gsub(/'/, '')
 
-        t = row[1]
-        if t.match(" - ")
-          t = t.split(" - ").first.strip
-        elsif t.match(/TBD/i)
-          t = "12:00"
-        elsif t.match(/morning/i)
-          t = "9:00"
-        end
-        hour, minute = t.split(":")
-
-        day = "0#{day}" if day && day.size == 1
-        month = "0#{month}" if month && month.size == 1
-        datestr = [year, month, day].join('-') rescue ""
-        datestr += " "
-        datestr += [hour, minute].join(':')
-        parsed_date = DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
-      else
-        parsed_date = nil #DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
-      end
-
-      title = row[2].strip.titleize
       brand = Brand.where(title: title).first
       if brand.nil?
-        brands = Brand.where("title ilike '%#{title}%'")
+        brands = Brand.where("title ilike '%#{title}%'") rescue []
         if brands && brands.size == 1
           brand = brands.first
           puts "[#{title}] found brand: #{brand.id}"
@@ -71,13 +50,10 @@ class Show < ApplicationRecord
         if theShow.valid?
           puts "Created show #{theShow.title}"
         else
-          byebug
           puts theShow.valid?
         end
       end
-      name = title
-      puts "#{d} #{t} #{name}"
-      return theShow
+      puts theShow.id
     end
   end
 
@@ -141,5 +117,30 @@ class Show < ApplicationRecord
         puts e
       end
     end
+  end
+
+  def self.format_date(d, t)
+    if d && t
+      month, day, year = d.split('/')
+
+      if t.match(" - ")
+        t = t.split(" - ").first.strip
+      elsif t.match(/TBD/i)
+        t = "12:00"
+      elsif t.match(/morning/i)
+        t = "9:00"
+      end
+      hour, minute = t.split(":")
+
+      day = "0#{day}" if day && day.size == 1
+      month = "0#{month}" if month && month.size == 1
+      datestr = [year, month, day].join('-') rescue ""
+      datestr += " "
+      datestr += [hour, minute].join(':')
+      parsed_date = DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
+    else
+      parsed_date = nil #DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
+    end
+    parsed_date
   end
 end
