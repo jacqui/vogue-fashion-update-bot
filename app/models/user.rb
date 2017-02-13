@@ -91,7 +91,7 @@ class User < ApplicationRecord
   end
 
   def conversation
-    Conversation.create_with(started_at: Time.now).find_or_create_by(user: u)
+    Conversation.create_with(started_at: Time.now).find_or_create_by(user: self)
   end
 
 end
