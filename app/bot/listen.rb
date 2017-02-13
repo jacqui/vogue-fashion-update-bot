@@ -104,7 +104,7 @@ end
 Bot.on :postback do |postback|
   puts "Received postback #{postback.inspect} from #{postback.sender}"
 
-  sent_message = User.create_with_sent_message(message)
+  sent_message = User.create_with_sent_message(postback)
   user = sent_message.user
 
   @conversation = user.conversation
