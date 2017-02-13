@@ -190,7 +190,17 @@ Bot.on :postback do |postback|
     if @answer.category == "runway_shows" && @answer.action == "send_latest_shows"
       # respond with the most recent shows
       puts "*** SEND LATEST SHOWS ***"
-      
+      if Show.past.any?
+        text = Content.find_by_label("upcoming_shows").body
+        shows = Show.past.order("date_time DESC").limit(3)
+        user.deliver_message_for(shows, "View the Show")
+      else
+        text = Content.find_by_label("no_upcoming_shows").body
+        message.reply(text: text)
+      end
+      sent_message.update!(text: text, sent_at: Time.now)
+      puts text
+
     elsif @answer.category == "runway_shows" && @answer.action == "send_vogue_picks_shows"
       # respond with vogue picks of the shows
       puts "*** SEND VOGUE PICKS ***"

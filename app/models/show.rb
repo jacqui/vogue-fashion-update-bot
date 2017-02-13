@@ -87,6 +87,7 @@ class Show < ApplicationRecord
     end
   end
 
+
   def send_message(user)
     msgText = self.title
     if date_time && date_time > Time.now
