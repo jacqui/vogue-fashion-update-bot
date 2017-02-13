@@ -58,6 +58,7 @@ class Show < ApplicationRecord
   end
 
   def send_to_all_users
+    return if upcoming?
     User.all.each do |user|
       send_message(user)
     end
