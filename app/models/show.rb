@@ -58,7 +58,7 @@ class Show < ApplicationRecord
   end
 
   def send_to_all_users
-    return if upcoming?
+    return if date_time.nil? || upcoming?
     User.all.each do |user|
       send_message(user)
     end
