@@ -1,19 +1,21 @@
-<p id="notice"><%= notice %></p>
+<div class="container" style="margin-top: 70px">
+  <div class="row">
 
-<p>
-  <strong>Title:</strong>
-  <%= @article.title %>
-</p>
+    <div class="page-header">
+      <h1><%= @article.title %></h1>
+    </div>
+  </div>
 
-<p>
-  <strong>Url:</strong>
-  <%= @article.url %>
-</p>
+  <div class="row">
+    <%= image_tag @article.image_url if @article.image_url %>
+  </div>
 
-<p>
-  <strong>Publish time:</strong>
-  <%= @article.publish_time %>
-</p>
-
-<%= link_to 'Edit', edit_article_path(@article) %> |
-<%= link_to 'Back', articles_path %>
+  <div class="row">
+    <p>
+    <%= link_to @article.title, @article.url, target: "_new" %>
+    </p>
+    <p>
+      <strong>Published at: </strong> <%= @article.publish_time %>
+    </p>
+  </div>
+</div>
