@@ -1,17 +1,29 @@
 namespace :shows do
-  desc "show grids"
-  task grid: :environment do
+  desc "show grids: london"
+  task london: :environment do
     require "csv"
     require 'date'
 
     puts "London..."
     Show.parse_grid("London", "Autumn/Winter 2017", "london.csv")
     puts
+  end
+
+  desc "show grids: new york"
+  task nyc: :environment do
+    require "csv"
+    require 'date'
 
     puts "New York..."
     Show.parse_grid("New York", "Autumn/Winter 2017", "new_york.csv")
     puts
-    
+  end
+
+  desc "show grids: paris"
+  task paris: :environment do
+    require "csv"
+    require 'date'
+
     puts "Paris..."
     Show.parse_grid("Paris", "Autumn/Winter 2017", "paris.csv")
     puts
