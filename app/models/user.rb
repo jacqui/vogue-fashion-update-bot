@@ -79,8 +79,8 @@ class User < ApplicationRecord
         }
       }
     }, access_token: ENV['ACCESS_TOKEN'])
-    user.last_message_sent_at = Time.now
-    user.save!
+    self.last_message_sent_at = Time.now
+    self.save!
   end
 
   def self.create_with_sent_message(message)
