@@ -1,0 +1,28 @@
+<div class="container" style="margin-top: 70px">
+  <div class="row">
+
+    <div class="page-header">
+      <h1>Brands</h1>
+    </div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @brands.each do |brand| %>
+      <tr>
+        <td><%= brand.id %></td>
+        <td><%= link_to brand.title, brand %></td>
+        <td><%= link_to 'Edit', edit_brand_path(brand) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+  </div>
+</div>
