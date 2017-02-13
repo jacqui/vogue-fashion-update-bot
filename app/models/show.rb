@@ -22,32 +22,34 @@ class Show < ApplicationRecord
   end
 
   def self.parse_grid(location_name, season_name, csvfile)
-#    Show.skip_callback(:create, :after, :send_message)
-    #Show.set_callback(:create, :after, :send_message)
     location = Location.where(title: location_name).first_or_create
     season = Season.where(title: season_name).first_or_create
 
     CSV.foreach(Rails.root.join('data', csvfile)) do |row|
       next if row.first == "EXCLUDE" || row.first == "date"
-      d = row[0]
-      month, day, year = d.split('/')
 
-      t = row[1]
-      if t.match(" - ")
-        t = t.split(" - ").first.strip
-      elsif t.match(/TBD/i)
-        t = "12:00"
-      elsif t.match(/morning/i)
-        t = "9:00"
+      if d = row[0]
+        month, day, year = d.split('/')
+
+        t = row[1]
+        if t.match(" - ")
+          t = t.split(" - ").first.strip
+        elsif t.match(/TBD/i)
+          t = "12:00"
+        elsif t.match(/morning/i)
+          t = "9:00"
+        end
+        hour, minute = t.split(":")
+
+        day = "0#{day}" if day.size == 1
+        month = "0#{month}" if month.size == 1
+        datestr = [year, month, day].join('-')
+        datestr += " "
+        datestr += [hour, minute].join(':')
+        parsed_date = DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
+      else
+        parsed_date = nil #DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
       end
-      hour, minute = t.split(":")
-
-      day = "0#{day}" if day.size == 1
-      month = "0#{month}" if month.size == 1
-      datestr = [year, month, day].join('-')
-      datestr += " "
-      datestr += [hour, minute].join(':')
-      parsed_date = DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
 
       title = row[2].strip.titleize
       brand = Brand.where(title: title).first

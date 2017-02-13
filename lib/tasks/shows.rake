@@ -9,6 +9,16 @@ namespace :shows do
     puts
   end
 
+  desc "show grids: milan"
+  task milan: :environment do
+    require "csv"
+    require 'date'
+
+    puts "Milan"
+    Show.parse_grid("Milan", "Autumn/Winter 2017", "milan.csv")
+    puts
+  end
+
   desc "show grids: new york"
   task nyc: :environment do
     require "csv"
