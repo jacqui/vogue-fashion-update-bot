@@ -127,13 +127,7 @@ Bot.on :postback do |postback|
         # find show information and send it
         if brand.shows.any?
           brand.shows.each do |show|
-            text = "The runway show for #{brand.title} "
-            text += "is" if show.upcoming?
-            text += "was" if show.past?
-            text += " at #{show.date_time.to_formatted_s(:long_ordinal)}"
-            text += " in #{show.location.title}."
-            postback.reply(text: text)
-            sent_message.update!(text: text, sent: true, sent_at: Time.now)
+            show.send_message(user)
           end
         else
           text = Content.find_by_label("no_shows_for_brand").body
@@ -142,7 +136,6 @@ Bot.on :postback do |postback|
         end
       end
       if answer.action == "send_latest_news"
-        # find show information and send it
         brand.articles.each do |article|
           postback.reply(
             attachment: {
