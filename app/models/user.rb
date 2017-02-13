@@ -53,7 +53,7 @@ class User < ApplicationRecord
   end
 
   def deliver_message_for(articles, button_text)
-    puts "Delivering message for user #{id}: #{message_title}"
+    puts "Delivering message for user #{id}: #{articles.size}"
     elements = articles.map do |article|
       {
         title: article.title,
