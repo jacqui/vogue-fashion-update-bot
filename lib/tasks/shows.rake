@@ -67,7 +67,7 @@ namespace :shows do
     require "http"
     require "addressable/uri"
     
-    puts "Shows count: #{Show.count}"
+    puts "Initial shows count: #{Show.count}"
     shows = paginated_get()
     shows.each do |show|
       locationData = show.delete('location')
@@ -87,14 +87,15 @@ namespace :shows do
       end
     end
 
-    puts "Shows count: #{Show.count}"
+    puts "Current shows count: #{Show.count}"
   end
 
 end
 
 def shows_url(params = {})
   page = params.delete(:page) { 1 }
-  "https://vg.prod.api.condenet.co.uk/0.0/show?sort=published_at,DESC&published=1&is_active=1&expand=show.season&expand=show.brand&expand=show.location&location=London&location=Milan&location=Paris&expand=article.images.default&per_page=20&page=#{page}"
+  per_page = params.delete(:per_page) { 50 }
+  "https://vg.prod.api.condenet.co.uk/0.0/show?sort=published_at,DESC&published=1&is_active=1&expand=show.season&expand=show.brand&expand=show.location&location=London&location=Milan&location=Paris&expand=article.images.default&per_page=#{per_page}&page=#{page}"
 end
     
 def get(params = {})
@@ -111,7 +112,7 @@ def paginated_get(options = {})
   loop do
     data = get({ page: page }.merge(params))
 
-    break if (data.empty? || data['data'].nil? || results.size > 50)
+    break if (data.empty? || data['data'].nil? || results.size > 100)
     items = data['data']['items']
     results += items
 
