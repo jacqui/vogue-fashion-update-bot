@@ -110,7 +110,7 @@ Bot.on :postback do |postback|
   @conversation = user.conversation
   puts "Convo: #{@conversation.id}"
 
-  Message.log_it(message)
+  Message.log_it(postback)
 
   case postback.payload
 
