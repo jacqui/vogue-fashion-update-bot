@@ -27,3 +27,4 @@ tmp/restart.txt
 tmp/sockets
 oldbot.rb
 config/database.yml
+config/secrets.yml
