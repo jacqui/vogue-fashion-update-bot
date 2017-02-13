@@ -23,12 +23,12 @@ class Show < ApplicationRecord
 
   def send_message
     msgText = self.title
-    if date_time > Time.now
+    if date_time && date_time > Time.now
       msgText += " has a runway show at #{date_time} in #{location.title}"
-    elsif date_time < Time.now
+    elsif date_time && date_time < Time.now
       msgText += " had a runway show at #{date_time} in #{location.title}"
     else
-      msgText += " show is at #{date_time} in #{location.title}"
+      msgText += " show is not scheduled yet in #{location.title}"
     end
 
     url = "http://www.vogue.co.uk/show/#{uid}"
