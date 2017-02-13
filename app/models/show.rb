@@ -103,13 +103,13 @@ class Show < ApplicationRecord
     if duplicate_sent_message.present?
       puts "Already sent this message (show: #{id}) to user #{user.id}!"
       duplicate_notification.update(sent: true, sent_at: duplicate_sent_message.sent_at) if duplicate_notification.present?
-      next
+      return
     end
 
     if duplicate_notification.present?
       sent_status_message = duplicate_notification.sent? ? 'sent at ' + duplicate_notification.sent_at.to_formatted_s(:long_ordinal) : 'waiting to be sent'
       puts "Already have a notification for this show: #{id} to user #{user.id} (#{sent_status_message}) "
-      next
+      return
     end
 
     last_sent_message = SentMessage.where(user_id: user.id).order("sent_at DESC").first
@@ -118,7 +118,7 @@ class Show < ApplicationRecord
     if last_sent_message && (Time.now - last_sent_message.sent_at <= 10)
       notification = Notification.create!(show: self, user: user, brand: brand, sent: false, sent_at: nil)
       puts "Created a notification to be sent in the next batch! ##{notification.id}"
-      next
+      return
 
     else
       begin
