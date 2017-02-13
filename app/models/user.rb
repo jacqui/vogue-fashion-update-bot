@@ -81,4 +81,17 @@ class User < ApplicationRecord
     user.last_message_sent_at = Time.now
     user.save!
   end
+
+  def self.create_with_sent_message(message)
+    u = User.where(fbid: message.sender['id']).first_or_create
+    puts "User: #{u.id} - #{u.fbid}"
+    sent_message = SentMessage.create(user_id: u.id, sent: false)
+
+    return sent_message
+  end
+
+  def conversation
+    Conversation.create_with(started_at: Time.now).find_or_create_by(user: u)
+  end
+
 end

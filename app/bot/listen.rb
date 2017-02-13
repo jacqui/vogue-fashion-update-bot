@@ -5,16 +5,14 @@ Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
 Bot.on :message do |message|
   puts "Received '#{message.inspect}' from #{message.sender}"
 
-  user = User.where(fbid: message.sender['id']).first_or_create
-  puts "User: #{user.id} - #{user.fbid}"
+  sent_message = User.create_with_sent_message(message)
+  user = sent_message.user
 
-  @conversation = Conversation.create_with(started_at: Time.now).find_or_create_by(user: user)
+  @conversation = user.conversation
   puts "Convo: #{@conversation.id}"
 
-  msg = Message.create(mid: message.messaging['message']['mid'], senderid: message.messaging['sender']['id'], seq: message.messaging['message']['seq'], sent_at: message.messaging['timestamp'], text: message.text)
-  puts "Stored a record of this message: #{msg.id}"
+  Message.log_it(message)
 
-  sent_message = SentMessage.new(user_id: user.id, sent: false)
   case message.text
   when /start/i
     @question = Question.starting
@@ -106,11 +104,13 @@ end
 Bot.on :postback do |postback|
   puts "Received postback #{postback.inspect} from #{postback.sender}"
 
-  user = User.where(fbid: postback.sender['id']).first_or_create
-  puts "User: #{user.id} - #{user.fbid}"
+  sent_message = User.create_with_sent_message(message)
+  user = sent_message.user
 
-  @conversation = Conversation.create_with(started_at: Time.now).find_or_create_by(user: user)
+  @conversation = user.conversation
   puts "Convo: #{@conversation.id}"
+
+  Message.log_it(message)
 
   case postback.payload
 
