@@ -56,7 +56,7 @@ Bot.on :message do |message|
     text = Content.find_by_label("help").body
     message.reply(text: text)
   else
-    if brand = Brand.where(title: message.text.downcase).first
+    if brand = Brand.where("title ilike ?", message.text.downcase).first
       puts "Found matching brand: #{brand.id} - #{brand.title}"
       # TODO: add a followup question
       brand_question = Question.where(category: "designers").first
