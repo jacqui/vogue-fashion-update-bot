@@ -85,6 +85,7 @@ Bot.on :message do |message|
 
       # Failed finding a match for the brand entered
     else
+      puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
       text = Content.find_by_label("unrecognised").body
       message.reply(text: "#{text} '#{message.text}'")
     end
