@@ -87,6 +87,9 @@ class Show < ApplicationRecord
     end
   end
 
+  def url
+    "http://www.vogue.co.uk/show/#{uid}"
+  end
 
   def send_message(user)
     msgText = self.title
@@ -97,8 +100,6 @@ class Show < ApplicationRecord
     else
       msgText += " show is not scheduled yet in #{location.title}"
     end
-
-    url = "http://www.vogue.co.uk/show/#{uid}"
 
     duplicate_sent_message = SentMessage.where(show_id: id, user_id: user.id).first
     duplicate_notification = Notification.where(show_id: id, user_id: user.id).first
