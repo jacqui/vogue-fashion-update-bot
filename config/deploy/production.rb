@@ -52,7 +52,7 @@ set :ssh_options, {
 # ------------------------------------
 server "ec2-54-194-183-98.eu-west-1.compute.amazonaws.com",
   user: "ubuntu",
-  roles: %w{web app},
+  roles: %w{web app db},
   ssh_options: {
     user: "ubuntu", # overrides user setting above
     keys: %w(/home/jmaher/.ssh/messenger-bot.pem),
