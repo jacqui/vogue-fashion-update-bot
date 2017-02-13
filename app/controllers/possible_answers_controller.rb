@@ -28,7 +28,7 @@ class PossibleAnswersController < ApplicationController
 
     respond_to do |format|
       if @possible_answer.save
-        format.html { redirect_to @possible_answer, notice: 'Possible answer was successfully created.' }
+        format.html { redirect_to :back, notice: 'Possible answer was successfully created.' }
         format.json { render :show, status: :created, location: @possible_answer }
       else
         format.html { render :new }
@@ -42,7 +42,7 @@ class PossibleAnswersController < ApplicationController
   def update
     respond_to do |format|
       if @possible_answer.update(possible_answer_params)
-        format.html { redirect_to @possible_answer, notice: 'Possible answer was successfully updated.' }
+        format.html { redirect_to :back, notice: 'Possible answer was successfully updated.' }
         format.json { render :show, status: :ok, location: @possible_answer }
       else
         format.html { render :edit }
