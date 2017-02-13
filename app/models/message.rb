@@ -1,7 +1,17 @@
 class Message < ApplicationRecord
   def self.log_it(received_message)
-    msg = Message.create(mid: received_message.messaging['message']['mid'], senderid: received_message.messaging['sender']['id'], seq: received_message.messaging['message']['seq'], sent_at: received_message.messaging['timestamp'], text: received_message.text)
-    puts "Stored a record of this message: #{msg.id}"
-    return msg
+    mid = received_message.messaging['message']['mid'] rescue nil
+    sid = received_message.messaging['sender']['id'] rescue nil
+    seq = received_message['message']['seq'] rescue nil
+    sent_at = received_message.messaging['timestamp'] rescue nil
+    text = received_message.text rescue nil
+
+    if mid && sid
+      msg = Message.create(mid: mid, senderid: sid, seq: seq, sent_at: sent_at, text: text)
+      puts "Stored a record of this message: #{msg.id}"
+      return msg
+    else
+      puts received_message.inspect
+    end
   end
 end
