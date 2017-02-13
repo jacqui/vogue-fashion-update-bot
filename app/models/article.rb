@@ -48,7 +48,7 @@ class Article < ApplicationRecord
           end
 
           begin
-            user.deliver_message_for(title, url, image_url, "View the Article")
+            user.deliver_message_for([self], "View the Article")
           rescue => e
             puts e
           end

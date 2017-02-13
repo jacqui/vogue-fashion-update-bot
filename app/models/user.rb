@@ -6,10 +6,9 @@ class User < ApplicationRecord
 
   def send_top_stories(quantity = 4)
     articles = Article.where(tag: "top-stories").order("updated_at DESC").limit(quantity)
-    articles.each do |article|
-      self.deliver_message_for(article.title, article.url, article.image_url, "View the Article")
-    end
+    self.deliver_message_for(articles, "View the Article")
   end
+
   def subscribed_to_shows?
     !shows_subscription.blank?
   end
@@ -53,8 +52,25 @@ class User < ApplicationRecord
     text
   end
 
-  def deliver_message_for(message_title, message_url, image_url, button_text)
+  def deliver_message_for(articles, button_text)
     puts "Delivering message for user #{id}: #{message_title}"
+    elements = articles.map do |article|
+      {
+        title: article.title,
+        image_url: article.image_url,
+        default_action: {
+          type: "web_url",
+          url: article.url
+        },
+        buttons:[
+          {
+            type: "web_url",
+            url: article.url,
+            title: button_text
+          }
+        ]      
+      }
+    end
     Bot.deliver({
       recipient: {
         id: fbid
@@ -64,23 +80,7 @@ class User < ApplicationRecord
           type: 'template',
           payload: {
             template_type: 'generic',
-            elements: [
-              {
-                title: message_title,
-                image_url: image_url,
-                default_action: {
-                  type: "web_url",
-                  url: message_url
-                },
-                buttons:[
-                  {
-                    type: "web_url",
-                    url: message_url,
-                    title: button_text
-                  }
-                ]      
-              }
-            ]
+            elements: elements
           }
         }
       }
