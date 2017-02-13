@@ -136,7 +136,7 @@ Bot.on :postback do |postback|
         end
       end
       if answer.action == "send_latest_news"
-        brand.articles.each do |article|
+        brand.articles.limit(2).each do |article|
           postback.reply(
             attachment: {
               type: 'template',
