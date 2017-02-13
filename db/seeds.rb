@@ -13,10 +13,10 @@ Question.delete_all
 
 puts "Setting up database with initial content..."
 
-top_stories = Question.create!(sort_order: 1, text: "Would you like to get the top stories (twice/day)?", type: "yes_no", category: "articles_top_stories")
+top_stories = Question.create!(sort_order: 1, text: "Would you like to get the top stories (twice/day)?", type: "yes_no", category: "top_stories")
 ts_yes = top_stories.possible_answers.create!(value: "Yes", sort_order: 1, category: "top_stories", action: "subscribe_to_top_stories")
 ts_no = top_stories.possible_answers.create!(value: "No", sort_order: 2, category: "top_stories", action: "skip_to_next_question")
-ts_yes.create_response!(text: "Here are the top 4 stories:", category: "articles_top_stories", quantity: 4, question: top_stories)
+ts_yes.create_response!(text: "Here are the top 4 stories:", category: "top_stories", quantity: 4, question: top_stories)
 ts_no.create_response!(text: "Ok.", category: "text", question: top_stories)
 
 puts " * question ##{top_stories.id} '#{top_stories.text}' order ##{top_stories.sort_order} with #{top_stories.possible_answers.size} possible answers"

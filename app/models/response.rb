@@ -10,7 +10,7 @@ class Response < ApplicationRecord
   validates :question, presence: true
   validates :category, presence: true
 
-  validates :category, inclusion: { in: %w(text articles_by_tag articles_top_stories runway_shows newsletter),
+  validates :category, inclusion: { in: %w(text articles_by_tag top_stories runway_shows newsletter),
     message: "%{value} is not a valid category" }
   
 end

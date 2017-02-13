@@ -1,6 +1,6 @@
 class Question < ApplicationRecord
   
-  VALID_CATEGORIES = %w(text articles_by_tag articles_top_stories runway_shows newsletter designers)
+  VALID_CATEGORIES = %w(text articles_by_tag top_stories runway_shows newsletter designers)
   VALID_TYPES = %w(yes_no free choices_provided choices_provided_or_free)
 
   validates :text, presence: true
