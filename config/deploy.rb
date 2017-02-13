@@ -1,7 +1,7 @@
 # config valid only for current version of Capistrano
 lock "3.7.2"
 
-set :application, "messenger-bot"
+set :application, "messenger_bot"
 set :repo_url, "git@github.com:conde-nast-international/fbmessenger-runway-bot.git"
 
 # Defaults to false
@@ -25,7 +25,7 @@ set :migration_role, :app
 set :branch, "master"
 
 # Default deploy_to directory is /var/www/my_app_name
-# set :deploy_to, "/var/www/my_app_name"
+set :deploy_to, "/home/ubuntu/messenger_bot"
 
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
