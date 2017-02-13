@@ -54,7 +54,7 @@ class Show < ApplicationRecord
       title = row[2].strip.titleize
       brand = Brand.where(title: title).first
       if brand.nil?
-        brands = Brand.where("title like '%#{title}%'")
+        brands = Brand.where("title ilike '%#{title}%'")
         if brands && brands.size == 1
           brand = brands.first
           puts "[#{title}] found brand: #{brand.id}"
