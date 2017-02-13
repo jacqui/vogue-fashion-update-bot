@@ -145,6 +145,7 @@ Bot.on :postback do |postback|
                 elements: [
                   {
                     title: article.title,
+                    image_url: article.image_url,
                     default_action: {
                       type: "web_url",
                       url: article.url

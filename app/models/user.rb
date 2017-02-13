@@ -61,6 +61,7 @@ class User < ApplicationRecord
             elements: [
               {
                 title: message_title,
+                image_url: image_url,
                 default_action: {
                   type: "web_url",
                   url: message_url
