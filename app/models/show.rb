@@ -81,7 +81,7 @@ class Show < ApplicationRecord
     duplicate_sent_message = SentMessage.where(show_id: id, user_id: user.id).first
     duplicate_notification = Notification.where(show_id: id, user_id: user.id).first
 
-    if duplicate_sent_message.present?
+    if duplicate_sent_message.present? && (Time.now - duplicate_sent_message.sent_at < 30)
       puts "Already sent this message (show: #{id}) to user #{user.id}!"
       duplicate_notification.update(sent: true, sent_at: duplicate_sent_message.sent_at) if duplicate_notification.present?
       return
