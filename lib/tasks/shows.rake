@@ -65,10 +65,10 @@ namespace :shows do
       if imageUid
         imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
       end
-      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
+      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major']).first
         puts "Show '#{theShow.title}' already exists. Skipping."
       else
-        theShow = Show.create!(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl)
+        theShow = Show.create!(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major'])
         puts "Created show id##{theShow.id} for '#{theShow.title}'"
       end
     end
