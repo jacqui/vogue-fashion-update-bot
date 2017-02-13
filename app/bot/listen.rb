@@ -178,10 +178,6 @@ Bot.on :postback do |postback|
     # look up the value for this answer to the question
     @answer = PossibleAnswer.find(answer_id)
 
-    # echo back (for testing purposes only - TODO: remove this)
-    text = "You answered: #{@answer.value}"
-    postback.reply(text: text)
-
     begin
       appropriate_response = @answer.appropriate_response
       postback.reply(text: appropriate_response.text)
