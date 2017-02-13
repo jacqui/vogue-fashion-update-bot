@@ -1,6 +1,9 @@
 # config valid only for current version of Capistrano
 lock "3.7.2"
 
+set :whenever_command, "bundle exec whenever"
+require "whenever/capistrano"
+
 set :application, "messenger_bot"
 set :repo_url, "git@github.com:conde-nast-international/fbmessenger-runway-bot.git"
 
