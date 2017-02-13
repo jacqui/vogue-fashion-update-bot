@@ -41,9 +41,9 @@ class Show < ApplicationRecord
         end
         hour, minute = t.split(":")
 
-        day = "0#{day}" if day.size == 1
-        month = "0#{month}" if month.size == 1
-        datestr = [year, month, day].join('-')
+        day = "0#{day}" if day && day.size == 1
+        month = "0#{month}" if month && month.size == 1
+        datestr = [year, month, day].join('-') rescue ""
         datestr += " "
         datestr += [hour, minute].join(':')
         parsed_date = DateTime.parse(datestr) rescue "Invalid Date: #{datestr}"
@@ -117,7 +117,7 @@ class Show < ApplicationRecord
     last_sent_message = SentMessage.where(user_id: user.id).order("sent_at DESC").first
 
     ## Ensure we don't spam this user with too many messages in a row
-    if last_sent_message && (Time.now - last_sent_message.sent_at <= 10)
+    if last_sent_message && !last_sent_message.sent_at.nil? && (Time.now - last_sent_message.sent_at <= 10)
       notification = Notification.create!(show: self, user: user, brand: brand, sent: false, sent_at: nil)
       puts "Created a notification to be sent in the next batch! ##{notification.id}"
       return
