@@ -46,4 +46,38 @@ class User < ApplicationRecord
     end
     text
   end
+
+  def deliver_message_for(message_title, message_url, button_text)
+    puts "Delivering message for user #{id}: #{message_title}"
+    Bot.deliver({
+      recipient: {
+        id: fbid
+      },
+      message: {
+        attachment: {
+          type: 'template',
+          payload: {
+            template_type: 'generic',
+            elements: [
+              {
+                title: message_title,
+                default_action: {
+                  type: "web_url",
+                  url: message_url
+                },
+                buttons:[
+                  {
+                    type: "web_url",
+                    url: message_url,
+                    title: button_text
+                  }
+                ]      
+              }
+            ]
+          }
+        }
+      }
+    }, access_token: ENV['ACCESS_TOKEN'])
+    user.last_message_sent_at = Time.now
+    user.save!
 end

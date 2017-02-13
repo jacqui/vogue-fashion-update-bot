@@ -37,7 +37,7 @@ class Article < ApplicationRecord
 
         else
           begin
-            sm = SentMessage.create(article: self, user: user, brand: brand, sent_at: Time.now)
+            sm = SentMessage.create!(article: self, user: user, brand: brand, sent_at: Time.now)
             puts "Ok, sending message! #{sm.id}"
             if !sm.valid?
               puts sm.errors
@@ -47,47 +47,12 @@ class Article < ApplicationRecord
           end
 
           begin
-            deliver_message_for(user)
+            user.deliver_message_for(title, url, "View the Article")
           rescue => e
             puts e
           end
         end
       end
     end
-  end
-
-  def deliver_message_for(user)
-    puts "Delivering message for user #{user.id}: #{title}"
-    Bot.deliver({
-      recipient: {
-        id: user.fbid
-      },
-      message: {
-        attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'generic',
-            elements: [
-              {
-                title: title,
-                default_action: {
-                  type: "web_url",
-                  url: url
-                },
-                buttons:[
-                  {
-                    type: "web_url",
-                    url: url,
-                    title: "View the Article"
-                  }
-                ]      
-              }
-            ]
-          }
-        }
-      }
-    }, access_token: ENV['ACCESS_TOKEN'])
-    user.last_message_sent_at = Time.now
-    user.save!
   end
 end
