@@ -13,6 +13,7 @@
           <th>Type</th>
           <th>Category</th>
           <th>Text</th>
+          <th></th>
         </tr>
       </thead>
 
@@ -23,6 +24,7 @@
             <td><%= question.type %></td>
             <td><%= question.category %></td>
             <td><%= link_to question.text, edit_question_path(question) %></td>
+            <td><%= link_to 'Delete', question, method: :delete, data: { confirm: 'Are you sure?' } %></td>
           </tr>
         <% end %>
       </tbody>
