@@ -72,6 +72,10 @@ class Show < ApplicationRecord
     "http://vogue.co.uk/shows/uid/#{uid}"
   end
 
+  def image_url
+    "https://vg-images.condecdn.net/image/#{image_uid}/crop/500/0.525"
+  end
+
   def send_message(user)
     msgText = self.title
     if date_time && date_time > Time.now

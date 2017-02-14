@@ -20,14 +20,9 @@ namespace :articles do
 
       next if list_item.nil?
 
-      imageUrl = nil
-
       imageUid = if list_item['images'] && list_item['images']['default'] && list_item['images']['default']['uid']
                    list_item['images']['default']['uid']
                  end
-      if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
-      end
 
       articleUrl = "http://vogue.co.uk/article/uid/#{list_item['uid']}"
       display_date = list_item['display_date'] || list_item['published_at']
@@ -36,7 +31,7 @@ namespace :articles do
       if article = Article.where(title: list_item['title']).first
         article.update(sort_order: itemData['priority'], display_date: display_date)
         puts "found existing article: #{article.id} #{article.title}"
-      elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: display_date, publish_time: list_item['published_at'], tag: tag, image_url: imageUrl, sort_order: itemData['priority'])
+      elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: display_date, publish_time: list_item['published_at'], tag: tag, image_uid: imageUid, sort_order: itemData['priority'])
         puts "created article: #{article.id} #{article.title}"
       end
       counter += 1
@@ -53,19 +48,15 @@ namespace :articles do
       data = HTTP.get(url).parse
       break if (data.empty? || data['data'].nil?)
       articleData = data['data']['items'].first
-      imageUrl = nil
 
       imageUid = if articleData['images'] && articleData['images']['default'] && articleData['images']['default']['uid']
                    articleData['images']['default']['uid']
                  end
-      if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
-      end
 
       articleUrl = "http://vogue.co.uk/article/uid/#{articleData['uid']}"
       if article = Article.where(title: articleData['title']).first
         puts "found existing article: #{article.id} #{article.title}"
-      elsif article = Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: tag, image_url: imageUrl)
+      elsif article = Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: tag, image_uid: imageUid)
         puts "created article: #{article.id} #{article.title}"
       end
     end
@@ -82,15 +73,11 @@ namespace :articles do
       
       data['data']['items'].each do |articleData|
         articleUrl = "http://vogue.co.uk/article/uid/#{articleData['uid']}"
-        imageUrl = nil
 
         imageUid = if articleData['images'] && articleData['images']['default'] && articleData['images']['default']['uid']
                      articleData['images']['default']['uid']
                    end
-        if imageUid
-          imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
-        end
-        article = Article.where(title: articleData['title']).first || Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_url: imageUrl)
+        article = Article.where(title: articleData['title']).first || Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_uid: imageUid)
         puts "created article: #{article.id} #{article.title} - #{article.tag}"
         puts
       end

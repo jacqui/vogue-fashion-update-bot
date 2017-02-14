@@ -10,6 +10,10 @@ class Article < ApplicationRecord
     where("display_date IS NOT NULL").where(tag: "top-stories").where("DATE(display_date) = DATE('today')").order("sort_order ASC")
   end
 
+  def image_url
+    "https://vg-images.condecdn.net/image/#{image_uid}/crop/500/0.525"
+  end
+
   def setup_messages
     puts "Setting up messages for delivery: '#{title}'..."
     brands = Brand.where(slug: tag)

@@ -57,19 +57,14 @@ namespace :shows do
       brandData = show.delete('brand')
       brand = Brand.where(title: brandData['title'], slug: brandData['slug'], uid: brandData['uid']).first_or_create!
 
-      imageUrl = nil
-
       imageUid = if show['images'] && show['images']['default'] && show['images']['default']['uid']
                    show['images']['default']['uid']
                  end
-      if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
-      end
-      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
+      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid).first
         theShow.update(major: show['is_major'])
         theShow.update(date_time: show['date_time'])
       else
-        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major'], date_time: show['date_time'])
+        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid, major: show['is_major'], date_time: show['date_time'])
         if theShow.valid?
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
@@ -92,20 +87,15 @@ namespace :shows do
       brandData = show.delete('brand')
       brand = Brand.where(title: brandData['title'], slug: brandData['slug'], uid: brandData['uid']).first_or_create!
 
-      imageUrl = nil
-
       imageUid = if show['images'] && show['images']['default'] && show['images']['default']['uid']
                    show['images']['default']['uid']
                  end
-      if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
-      end
-      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
+      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid).first
         puts "Show '#{theShow.title}' already exists. Skipping."
         theShow.update(major: true)
         theShow.update(date_time: show['date_time'])
       else
-        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true, date_time: show['date_time'])
+        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid, major: true, date_time: show['date_time'])
         if theShow.valid?
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
