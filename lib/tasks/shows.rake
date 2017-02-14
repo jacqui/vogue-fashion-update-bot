@@ -67,8 +67,9 @@ namespace :shows do
       end
       if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
         theShow.update(major: show['is_major'])
+        theShow.update(date_time: show['date_time'])
       else
-        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major'])
+        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major'], date_time: show['date_time'])
         if theShow.valid?
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
@@ -102,8 +103,9 @@ namespace :shows do
       if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
         puts "Show '#{theShow.title}' already exists. Skipping."
         theShow.update(major: true)
+        theShow.update(date_time: show['date_time'])
       else
-        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true)
+        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true, date_time: show['date_time'])
         if theShow.valid?
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
