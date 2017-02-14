@@ -60,8 +60,15 @@ if Rails.env.production?
       sent_message.update!(text: text, sent_at: Time.now)
       puts text
     when /our picks|highlights|best/i
-      text = Content.find_by_label("our_picks").body
-      message.reply(text: text)
+      shows = Show.where(major: true).order("date_time DESC").limit(4)
+      if shows.any?
+        text = Content.find_by_label("our_picks").body
+        postback.reply(text: text)
+        user.deliver_message_for(shows, "View the Show")
+      else
+        text = Content.find_by_label("no_upcoming_shows").body
+        message.reply(text: text)
+      end
       sent_message.update!(text: text, sent_at: Time.now)
     when /help/i
       text = Content.find_by_label("help").body
@@ -204,7 +211,7 @@ if Rails.env.production?
           user.deliver_message_for(shows, "View the Show")
         else
           text = Content.find_by_label("no_upcoming_shows").body
-          message.reply(text: text)
+          postback.reply(text: text)
         end
         sent_message.update!(text: text, sent_at: Time.now)
         puts text
@@ -217,7 +224,7 @@ if Rails.env.production?
           user.deliver_message_for(shows, "View the Show")
         else
           text = Content.find_by_label("no_upcoming_shows").body
-          message.reply(text: text)
+          postback.reply(text: text)
         end
 
       elsif @answer.question.category == "top_stories" && @answer.action == "subscribe_to_top_stories"
@@ -283,8 +290,15 @@ if Rails.env.production?
       sent_message.update!(text: text, sent_at: Time.now)
 
     when /OUR_PICKS|highlights/i
-      text = Content.find_by_label("our_picks").body
-      postback.reply(text: text)
+      shows = Show.where(major: true).order("date_time DESC").limit(4)
+      if shows.any?
+        text = Content.find_by_label("our_picks").body
+        postback.reply(text: text)
+        user.deliver_message_for(shows, "View the Show")
+      else
+        text = Content.find_by_label("no_upcoming_shows").body
+        message.reply(text: text)
+      end
       sent_message.update!(text: text, sent_at: Time.now)
 
     when /upcoming/i
