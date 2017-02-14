@@ -63,7 +63,7 @@ if Rails.env.production?
       shows = Show.where(major: true).order("date_time DESC").limit(4)
       if shows.any?
         text = Content.find_by_label("our_picks").body
-        postback.reply(text: text)
+        message.reply(text: text)
         user.deliver_message_for(shows, "View the Show")
       else
         text = Content.find_by_label("no_upcoming_shows").body
@@ -297,7 +297,7 @@ if Rails.env.production?
         user.deliver_message_for(shows, "View the Show")
       else
         text = Content.find_by_label("no_upcoming_shows").body
-        message.reply(text: text)
+        postback.reply(text: text)
       end
       sent_message.update!(text: text, sent_at: Time.now)
 
