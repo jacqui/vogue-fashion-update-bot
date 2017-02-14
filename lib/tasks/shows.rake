@@ -68,8 +68,12 @@ namespace :shows do
       if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
         theShow.update(major: show['is_major'])
       else
-        theShow = Show.create!(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major'])
-        puts "Created show id##{theShow.id} for '#{theShow.title}'"
+        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major'])
+        if theShow.valid?
+          puts "Created show id##{theShow.id} for '#{theShow.title}'"
+        else
+          puts "Failed creating show #{theShow.title}: #{theShow.errors}"
+        end
       end
     end
 
@@ -99,8 +103,12 @@ namespace :shows do
         puts "Show '#{theShow.title}' already exists. Skipping."
         theShow.update(major: true)
       else
-        theShow = Show.create!(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true)
-        puts "Created show id##{theShow.id} for '#{theShow.title}'"
+        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true)
+        if theShow.valid?
+          puts "Created show id##{theShow.id} for '#{theShow.title}'"
+        else
+          puts "Failed creating show #{theShow.title}: #{theShow.errors}"
+        end
       end
     end
 
