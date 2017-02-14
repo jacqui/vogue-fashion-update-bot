@@ -156,7 +156,6 @@ if Rails.env.production?
           articles = brand.articles.order("created_at DESC").limit(4)
           if articles.any?
             user.deliver_message_for(articles, "View the Article")
-            sent_message.update!(article: article, text: article.title, sent_at: Time.now)
           else
             text = Content.find_by_label("no_shows_for_brand").body
             postback.reply(text: text)
