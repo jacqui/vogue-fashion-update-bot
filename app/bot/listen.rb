@@ -9,7 +9,9 @@ Bot.on :message do |message|
   user = sent_message.user
   if sender = user.get_sender_profile
     puts sender.inspect
-    # user.update(first_name: sender.first_name)
+    user.update( first_name: sender['first_name'],
+      last_name: sender['last_name'],
+      gender: sender['gender'])
   end
   
 
