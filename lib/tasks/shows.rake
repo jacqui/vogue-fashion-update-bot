@@ -45,8 +45,8 @@ namespace :shows do
     require "http"
     require "addressable/uri"
     
-    puts "Initial shows count: #{Show.count}"
-    shows = paginated_get()
+    puts "Initial (non-major) shows count: #{Show.where(major: false).count}"
+    shows = paginated_get(major: 0)
     shows.each do |show|
       locationData = show.delete('location')
       location = Location.where(title: locationData['title'], slug: locationData['slug'], uid: locationData['uid']).first_or_create!
@@ -73,7 +73,37 @@ namespace :shows do
       end
     end
 
-    puts "Current shows count: #{Show.count}"
+    puts "Current (non-major) shows count: #{Show.where(major: false).count}"
+
+    puts "Initial (major) shows count: #{Show.where(major: true).count}"
+    shows = paginated_get(major: 1)
+    shows.each do |show|
+      locationData = show.delete('location')
+      location = Location.where(title: locationData['title'], slug: locationData['slug'], uid: locationData['uid']).first_or_create!
+
+      seasonData = show.delete('season')
+      season = Season.where(title: seasonData['title'], slug: seasonData['slug'], uid: seasonData['uid']).first_or_create!
+
+      brandData = show.delete('brand')
+      brand = Brand.where(title: brandData['title'], slug: brandData['slug'], uid: brandData['uid']).first_or_create!
+
+      imageUrl = nil
+
+      imageUid = if show['images'] && show['images']['default'] && show['images']['default']['uid']
+                   show['images']['default']['uid']
+                 end
+      if imageUid
+        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
+      end
+      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true).first
+        puts "Show '#{theShow.title}' already exists. Skipping."
+      else
+        theShow = Show.create!(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true)
+        puts "Created show id##{theShow.id} for '#{theShow.title}'"
+      end
+    end
+
+    puts "Current (major) shows count: #{Show.where(major: true).count}"
   end
 
 end
@@ -81,7 +111,8 @@ end
 def shows_url(params = {})
   page = params.delete(:page) { 1 }
   per_page = params.delete(:per_page) { 50 }
-  "https://vg.prod.api.condenet.co.uk/0.0/show?sort=published_at,DESC&published=1&is_active=1&expand=show.season&expand=show.brand&expand=show.location&location=London&location=Milan&location=Paris&expand=show.images.default&per_page=#{per_page}&page=#{page}"
+  major = params.delete(:major) { 0 }
+  "https://vg.prod.api.condenet.co.uk/0.0/show?sort=published_at,DESC&published=1&is_major=#{major}&is_active=1&expand=show.season&expand=show.brand&expand=show.location&location=London&location=Milan&location=Paris&expand=show.images.default&per_page=#{per_page}&page=#{page}"
 end
     
 def get(params = {})
