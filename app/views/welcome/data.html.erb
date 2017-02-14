@@ -1,29 +1,13 @@
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
   <div class="container">
-    <h1 class="display-3">Source Content</h1>
+    <h1 class="display-3">Data</h1>
     <p>From published articles to runway shows, this is all the data the bot knows about and can use in interacting with users.</p>
+
+    <p><%= link_to "Articles", articles_path, class: "btn btn-sm btn-secondary", role: "button" %>
+    <%= link_to "Brands", brands_path, class: "btn btn-sm btn-secondary", role: "button" %>
+    <%= link_to "Shows", shows_path, class: "btn btn-sm btn-secondary", role: "button" %></p>
   </div>
 </div>
-
-<div class="container">
-  <!-- Example row of columns -->
-  <div class="row">
-    <div class="col-md-4">
-      <h2>Articles</h2>
-      <p>Articles and galleries from British Vogue that are tagged with one of the brands with a show during Fashion Week are delivered to users who decide to follow the latest news around a designer.</p>
-      <p><%= link_to "Go", articles_path, class: "btn btn-secondary", role: "button" %></p>
-    </div>
-    <div class="col-md-4">
-      <h2>Brands</h2>
-      <p>All the design and fashion houses that the bot knows of, they're how it recognizes free text entry from users messaging it.</p>
-      <p><%= link_to "Go", brands_path, class: "btn btn-secondary", role: "button" %></p>
-    </div>
-    <div class="col-md-4">
-      <h2>Shows</h2>
-      <p>Runway shows as published on vogue.co.uk are found here in a structured format.</p>
-      <p><%= link_to "Go", shows_path, class: "btn btn-secondary", role: "button" %></p>
-    </div>
-  </div>
 
 

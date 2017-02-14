@@ -12,11 +12,10 @@
   <body>
 
     <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
-    
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a class="navbar-brand" href="#">Bots</a>
+      <a class="navbar-brand" href="/">💃 Bot Admin</a>
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
@@ -30,7 +29,22 @@
             <%= link_to "Broadcast", broadcasts_path, { class: "nav-link" } %>
           </li>
           <li class="nav-item">
-            <%= link_to "Message Logs", sent_messages_path, { class: "nav-link" } %>
+            <%= link_to "Data", data_path, { class: "nav-link" } %>
+          </li>
+          <li class="nav-item">
+              <%= link_to "Articles", articles_path, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+              <%= link_to "Brands", brands_path, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+              <%= link_to "Shows", shows_path, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+              <%= link_to "Received", messages_path, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+              <%= link_to "Sent", sent_messages_path, class: "nav-link" %>
           </li>
         </ul>
       </div>

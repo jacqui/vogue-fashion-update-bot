@@ -1,30 +1,23 @@
-<!-- Main jumbotron for a primary marketing message or call to action -->
+<!-- Main jumbotron for a primary marketing message or call to action  -->
 <div class="jumbotron">
   <div class="container">
-    <h1 class="display-3">Welcome! 💃</h1>
-    <p>This is where you setup and monitor the British Vogue Facebook Messenger Runway bot.</p>
+    <p>
+    <%= link_to "Prompts & Responses", questions_path, class: "btn btn-outline-info", role: "button" %>
+    <%= link_to "Broadcast a Message", broadcasts_path, class: "btn btn-outline-danger", role: "button" %>
+    <%= link_to "View Available Data", data_path, class: "btn btn-outline-warning", role: "button" %>
+    </p>
+    <p>Configure how the bot behaves and what it says, review content like runway shows and schedules, and see statistics on usage. </p>
   </div>
 </div>
 
-<div class="container">
   <!-- Example row of columns -->
-  <div class="row">
-    <div class="col-md-4">
-      <h2>Configure</h2>
-      <p>Create and edit questions and other messaging text here.</p>
-      <p><%= link_to "Go", questions_path, class: "btn btn-secondary", role: "button" %></p>
-    </div>
-    <div class="col-md-4">
-      <h2>Broadcast</h2>
-      <p>Got something to say to all of our Facebook users? Write a message to them.</p>
-      <p><%= link_to "Go", broadcasts_path, class: "btn btn-secondary", role: "button" %></p>
-    </div>
-    <div class="col-md-4">
-      <h2>Status</h2>
-      <p>How many people have talked to the bot? What messages have we <%= link_to "sent", sent_messages_path %> or <%= link_to "received", messages_path %>? All that info is here.</p>
-      <p><%= link_to "Sent", sent_messages_path, class: "btn btn-secondary", role: "button" %></p>
-      <p><%= link_to "Received", sent_messages_path, class: "btn btn-secondary", role: "button" %></p>
     </div>
   </div>
-
-
+  <div class="col-md-8">
+      <h2>Message Logs</h2>
+      <p>How many people have talked to the bot? What messages have we <%= link_to "sent", sent_messages_path %> or <%= link_to "received", messages_path %>? All that info is here.</p>
+      <p>
+      <%= link_to "Sent", sent_messages_path, class: "btn btn-secondary", role: "button" %>
+      <%= link_to "Received", sent_messages_path, class: "btn btn-secondary", role: "button" %></p>
+  </div>
+</div>
