@@ -135,48 +135,32 @@ if Rails.env.production?
       answer_id = postback.payload.split(":").last
       brand = Brand.find(brand_id)
       answer = PossibleAnswer.find(answer_id)
+
       if brand && answer
         puts "found brand: #{brand.title}"
         puts "found answer: #{answer.action} #{answer.id}"
+
         if answer.action == "send_show_info"
           # find show information and send it
-          if brand.shows.any?
-            brand.shows.each do |show|
-              show.send_message(user)
-            end
+          shows = brand.shows.order("date_time DESC").limit(4)
+          if shows.any?
+            user.deliver_message_for(shows, "View the Show")
           else
             text = Content.find_by_label("no_shows_for_brand").body
             postback.reply(text: text)
             sent_message.update!(text: text, sent_at: Time.now)
           end
         end
+
         if answer.action == "send_latest_news"
-          brand.articles.limit(2).each do |article|
-            postback.reply(
-              attachment: {
-                type: 'template',
-                payload: {
-                  template_type: 'generic',
-                  elements: [
-                    {
-                      title: article.title,
-                      image_url: article.image_url,
-                      default_action: {
-                        type: "web_url",
-                        url: article.url
-                      },
-                      buttons:[
-                        {
-                          type: "web_url",
-                          url: article.url,
-                          title: "View the Article"
-                        }
-                      ]      
-                    }
-                  ]
-                }
-              })
+          articles = brand.articles.order("created_at DESC").limit(4)
+          if articles.any?
+            user.deliver_message_for(articles, "View the Article")
             sent_message.update!(article: article, text: article.title, sent_at: Time.now)
+          else
+            text = Content.find_by_label("no_shows_for_brand").body
+            postback.reply(text: text)
+            sent_message.update!(text: text, sent_at: Time.now)
           end
         end
 
