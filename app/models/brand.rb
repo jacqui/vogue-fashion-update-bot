@@ -7,6 +7,10 @@ class Brand < ApplicationRecord
 
   validates :slug, uniqueness: true
 
+  def self.default_scope
+    order("title ASC")
+  end
+
   def articles
     brand_articles = Article.where(tag: slug)
     puts "#{brand_articles.size} articles found"
