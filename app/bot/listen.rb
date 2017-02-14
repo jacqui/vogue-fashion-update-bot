@@ -7,6 +7,11 @@ Bot.on :message do |message|
 
   sent_message = User.create_with_sent_message(message)
   user = sent_message.user
+  if sender = user.get_sender_profile
+    puts sender.inspect
+    # user.update(first_name: sender.first_name)
+  end
+  
 
   @conversation = user.conversation
   puts "Convo: #{@conversation.id}"

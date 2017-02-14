@@ -101,4 +101,18 @@ class User < ApplicationRecord
     Conversation.create_with(started_at: Time.now).find_or_create_by(user: self)
   end
 
+  require 'httparty' # (if not already required)
+  include HTTParty
+
+  def get_sender_profile
+    request = HTTParty.get(
+      "https://graph.facebook.com/v2.6/#{fbid}",
+      query: {
+        access_token: ENV['ACCESS_TOKEN'],
+        fields: 'first_name,last_name,gender,profile_pic'
+      }
+    )
+
+    request.parsed_response
+  end
 end
