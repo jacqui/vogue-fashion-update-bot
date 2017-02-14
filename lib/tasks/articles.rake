@@ -30,7 +30,7 @@ namespace :articles do
       end
 
       articleUrl = "http://vogue.co.uk/article/uid/#{list_item['uid']}"
-      display_date = list_item['display_date']
+      display_date = list_item['display_date'] || list_item['published_at']
       puts "display date: #{display_date}"
 
       if article = Article.where(title: list_item['title']).first
