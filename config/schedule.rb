@@ -13,6 +13,10 @@ every 15.minutes do
   rake "shows:populate"
 end
 
+every 5.minutes do
+  rake "articles:subs"
+end
+
 every 30.minutes do
   rake "brands:populate"
 end
