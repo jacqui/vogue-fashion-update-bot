@@ -65,8 +65,8 @@ namespace :shows do
       if imageUid
         imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
       end
-      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major']).first
-        puts "Show '#{theShow.title}' already exists. Skipping."
+      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
+        theShow.update(major: show['is_major'])
       else
         theShow = Show.create!(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: show['is_major'])
         puts "Created show id##{theShow.id} for '#{theShow.title}'"
@@ -95,8 +95,9 @@ namespace :shows do
       if imageUid
         imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
       end
-      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true).first
+      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
         puts "Show '#{theShow.title}' already exists. Skipping."
+        theShow.update(major: true)
       else
         theShow = Show.create!(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl, major: true)
         puts "Created show id##{theShow.id} for '#{theShow.title}'"
