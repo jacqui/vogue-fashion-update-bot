@@ -26,7 +26,7 @@ namespace :articles do
                    list_item['images']['default']['uid']
                  end
       if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
+        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
       end
 
       articleUrl = "http://vogue.co.uk/article/uid/#{list_item['uid']}"
@@ -59,7 +59,7 @@ namespace :articles do
                    articleData['images']['default']['uid']
                  end
       if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
+        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
       end
 
       articleUrl = "http://vogue.co.uk/article/uid/#{articleData['uid']}"
@@ -88,7 +88,7 @@ namespace :articles do
                      articleData['images']['default']['uid']
                    end
         if imageUid
-          imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
+          imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
         end
         article = Article.where(title: articleData['title']).first || Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_url: imageUrl)
         puts "created article: #{article.id} #{article.title} - #{article.tag}"

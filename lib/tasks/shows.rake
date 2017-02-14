@@ -63,7 +63,7 @@ namespace :shows do
                    show['images']['default']['uid']
                  end
       if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
+        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
       end
       if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
         theShow.update(major: show['is_major'])
@@ -98,7 +98,7 @@ namespace :shows do
                    show['images']['default']['uid']
                  end
       if imageUid
-        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.4"
+        imageUrl = "https://vg-images.condecdn.net/image/#{imageUid}/crop/500/0.525"
       end
       if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_url: imageUrl).first
         puts "Show '#{theShow.title}' already exists. Skipping."
