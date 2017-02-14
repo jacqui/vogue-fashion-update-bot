@@ -34,11 +34,11 @@ class Show < ApplicationRecord
       brand = Brand.where(title: title).first
       if brand.nil?
         brands = Brand.where("title ilike '%#{title}%'") rescue []
-        if brands && brands.size == 1
+        if brands.any?
           brand = brands.first
           puts "[#{title}] found brand: #{brand.id}"
         else
-          puts "[#{title}] found #{brands.size} matching brands"
+          puts "[#{title}] failed finding a brand to match."
           next
         end
       end
