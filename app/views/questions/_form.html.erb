@@ -51,12 +51,6 @@
       </div>
     </div>
 
-    <%= pa_form.fields_for :response do |rf| %>
-      <div class="row">
-        <%= rf.text_field :text, class: "form-control form-control-sm", "aria-describedby": "responseHelp" %>
-        <small id="responseHelp" class="form-text text-muted">How should the bot respond when a user selects this answer?</small>
-      </div>
-    <% end %>
   <% end %>
 
   <%= f.submit "Submit", class: "btn btn-primary" %>
