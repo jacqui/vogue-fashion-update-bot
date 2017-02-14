@@ -237,6 +237,7 @@ if Rails.env.production?
       end
 
       @next_question = if @answer.action == "skip_to_next_question" && @answer.next_question_id.present?
+                         puts "Skipping to next question #{@answer.next_question_id}"
                          Question.find(@answer.next_question_id)
                        elsif appropriate_response.next_question.present?
                          puts " Found the next question for response ##{appropriate_response.id}: #{appropriate_response.next_question.id}"
