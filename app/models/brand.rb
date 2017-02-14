@@ -5,6 +5,7 @@ class Brand < ApplicationRecord
   has_many :users, through: :subscriptions
   has_many :possible_answers
 
+  validates :slug, uniqueness: true
 
   def articles
     brand_articles = Article.where(tag: slug)

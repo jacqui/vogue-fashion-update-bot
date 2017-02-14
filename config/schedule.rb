@@ -17,16 +17,12 @@ every 5.minutes do
   rake "articles:subs"
 end
 
-every 30.minutes do
+every 1.day do
   rake "brands:populate"
 end
 
-every 12.hours do
+every 6.hours do
   rake "articles:top"
 end
-#
-# every 4.days do
-#   runner "AnotherModel.prune_old_records"
-# end
 
 # Learn more: http://github.com/javan/whenever
