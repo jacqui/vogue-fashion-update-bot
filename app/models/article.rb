@@ -6,6 +6,9 @@ class Article < ApplicationRecord
 
   after_create :setup_messages
 
+  def self.top_stories
+    where("display_date IS NOT NULL").where(tag: "top-stories").where("DATE(display_date) = DATE('today')").order("sort_order ASC")
+  end
 
   def setup_messages
     puts "Setting up messages for delivery: '#{title}'..."

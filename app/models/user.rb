@@ -5,8 +5,8 @@ class User < ApplicationRecord
   has_and_belongs_to_many :broadcasts
 
   def send_top_stories(quantity = 4)
-    articles = Article.where(tag: "top-stories").order("sort_order ASC").limit(quantity)
-    self.deliver_message_for(articles, "View the Article")
+    top_stories = Article.top_stories.limit(quantity)
+    self.deliver_message_for(top_stories, "View the Article")
   end
 
   def subscribed_to_shows?
