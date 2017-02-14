@@ -11,33 +11,53 @@
     </div>
   <% end %>
 
-  <div class="field">
+  <div class="form-group">
     <%= f.label :sort_order %>
-    <%= f.number_field :sort_order %>
+    <%= f.number_field :sort_order, class: "form-control", "aria-describedby": "sortOrderHelp" %>
+    <small id="sortOrderHelp" class="form-text text-muted">When in the conversation should this question be asked? Enter 1 for first.</small>
   </div>
 
-  <div class="field">
+  <div class="form-group">
     <%= f.label :category %>
-    <%= f.select :category, Question::VALID_CATEGORIES %>
+    <%= f.select :category, Question::VALID_CATEGORIES, class: "form-control" %>
   </div>
 
-  <div class="field">
+  <div class="form-group">
     <%= f.label :type %>
-    <%= f.select :type, Question::VALID_TYPES %>
+    <%= f.select :type, Question::VALID_TYPES, class: "form-control" %>
   </div>
 
-  <div class="field">
+  <div class="form-group">
     <%= f.label :text %>
-    <%= f.text_area :text %>
+    <%= f.text_area :text, class: "form-control" %>
   </div>
-  <div class="field">
-    <%= f.label :possible_answers %>
-    <ul>
-    <% question.possible_answers.each do |possible_answer| %>
-      <li><%= link_to possible_answer.value, edit_possible_answer_path(possible_answer) %></li>
+
+  <hr>
+
+  <div class="row">
+    <h3>Possible Answers</h3>
+    <p>Possible answers are the multiple choice options presented as buttons in Messenger under a question. For example, "Yes" and "No" or "Latest Shows" + "Highlights". They are known in the Facebook Messenger Bot world as "quick replies" for some reason.</p>
+  </div>
+
+  <%= f.fields_for :possible_answers do |pa_form| %>
+    <div class="row">
+      <div class="col-1"><%= pa_form.label :sort_order %> <%= pa_form.number_field :sort_order, class: "form-control form-control-sm" %></div>
+      <div class="col-3"><%= pa_form.label :value %> <%= pa_form.text_field :value, class: "form-control form-control-sm" %></div>
+      <div class="col-2">
+        <%= pa_form.label :category %> <%= pa_form.text_field :category, class: "form-control form-control-sm" %>
+      </div>
+      <div class="col-2">
+        <%= pa_form.label :action %> <%= pa_form.text_field :action, class: "form-control form-control-sm" %>
+      </div>
+    </div>
+
+    <%= pa_form.fields_for :response do |rf| %>
+      <div class="row">
+        <%= rf.text_field :text, class: "form-control form-control-sm", "aria-describedby": "responseHelp" %>
+        <small id="responseHelp" class="form-text text-muted">How should the bot respond when a user selects this answer?</small>
+      </div>
     <% end %>
-  
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+  <% end %>
+
+  <%= f.submit "Submit", class: "btn btn-primary" %>
 <% end %>

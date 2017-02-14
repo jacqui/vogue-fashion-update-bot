@@ -5,14 +5,13 @@
     </div>
   </div>
   <div class="row">
-    <%= link_to 'New Question', new_question_path %>
+    <%= button_to 'New Question', new_question_path, class: "btn btn-success pull-right" %>
     <table class="table">
       <thead>
         <tr>
           <th>Order</th>
-          <th>Type</th>
-          <th>Category</th>
           <th>Text</th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -21,19 +20,20 @@
         <% @questions.each do |question| %>
           <tr>
             <td><%= question.sort_order %></td>
-            <td><%= question.type %></td>
-            <td><%= question.category %></td>
             <td><%= link_to question.text, edit_question_path(question) %></td>
+            <td><%= link_to 'Edit', edit_question_path(question) %></td>
             <td><%= link_to 'Delete', question, method: :delete, data: { confirm: 'Are you sure?' } %></td>
           </tr>
         <% end %>
       </tbody>
     </table>
   </div>
+  <p>
+  </p>
 
   <div class="row">
     <div class="page-header">
-      <h1>Other Message Responses</h1>
+      <h1>Other Phrases</h1>
     </div>
   </div>
   <div class="row">
