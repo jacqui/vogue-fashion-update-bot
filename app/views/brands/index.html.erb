@@ -8,8 +8,9 @@
 <table class="table">
   <thead>
     <tr>
-      <th>ID</th>
       <th>Name</th>
+      <th>Shows</th>
+      <th>Users Following</th>
       <th></th>
     </tr>
   </thead>
@@ -17,8 +18,9 @@
   <tbody>
     <% @brands.each do |brand| %>
       <tr>
-        <td><%= brand.id %></td>
         <td><%= link_to brand.title, brand %></td>
+        <td><%= brand.shows.count %></td>
+        <td><%= brand.users.count %></td>
         <td><%= link_to 'Edit', edit_brand_path(brand) %></td>
       </tr>
     <% end %>

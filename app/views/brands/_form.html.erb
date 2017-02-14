@@ -11,6 +11,17 @@
     </div>
   <% end %>
 
+  <div class="form-group">
+    <%= f.label :title %>
+    <%= f.text_field :title, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :slug %>
+    <%= f.text_field :slug, class: "form-control", "aria-describedby": "slugHelp"  %>
+    <small id="slugHelp" class="form-text text-muted">This is used to match articles and other coverage with this designer (aka tags).</small>
+  </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>
