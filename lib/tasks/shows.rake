@@ -72,7 +72,7 @@ namespace :shows do
         if theShow.valid?
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
-          puts "Failed creating show #{theShow.title}: #{theShow.errors}"
+          puts "Failed creating show #{theShow.title}: #{theShow.errors.full_messages}"
         end
       end
     end
@@ -107,7 +107,7 @@ namespace :shows do
         if theShow.valid?
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
-          puts "Failed creating show #{theShow.title}: #{theShow.errors}"
+          puts "Failed creating show #{theShow.title}: #{theShow.errors.full_messages}"
         end
       end
     end
