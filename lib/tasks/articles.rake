@@ -31,8 +31,9 @@ namespace :articles do
 
       articleUrl = "http://vogue.co.uk/article/uid/#{list_item['uid']}"
       if article = Article.where(title: list_item['title']).first
+        article.update(sort_order: itemData['priority'])
         puts "found existing article: #{article.id} #{article.title}"
-      elsif article = Article.create(title: list_item['title'], url: articleUrl, publish_time: list_item['published_at'], tag: tag, image_url: imageUrl)
+      elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: list_item['display_date'], publish_time: list_item['published_at'], tag: tag, image_url: imageUrl, sort_order: itemData['priority'])
         puts "created article: #{article.id} #{article.title}"
       end
       counter += 1
