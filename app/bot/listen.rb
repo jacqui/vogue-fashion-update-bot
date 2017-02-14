@@ -206,11 +206,11 @@ if Rails.env.production?
         # respond with the most recent shows
         puts "*** SEND LATEST SHOWS ***"
         if Show.past.any?
-          text = Content.find_by_label("upcoming_shows").body
+          text = Content.find_by_label("latest_shows").body
           shows = Show.past.order("date_time DESC").limit(3)
           user.deliver_message_for(shows, "View the Show")
         else
-          text = Content.find_by_label("no_upcoming_shows").body
+          text = Content.find_by_label("no_latest_shows").body
           postback.reply(text: text)
         end
         sent_message.update!(text: text, sent_at: Time.now)
@@ -309,11 +309,11 @@ if Rails.env.production?
 
     when /latest/i
       if Show.past.any?
-        text = Content.find_by_label("upcoming_shows").body
+        text = Content.find_by_label("latest_shows").body
         shows = Show.past.order("date_time DESC").limit(3)
         user.deliver_message_for(shows, "View the Show")
       else
-        text = Content.find_by_label("no_upcoming_shows").body
+        text = Content.find_by_label("no_latest_shows").body
         postback.reply(text: text)
       end
       sent_message.update!(text: text, sent_at: Time.now)
