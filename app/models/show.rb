@@ -13,6 +13,10 @@ class Show < ApplicationRecord
   scope :upcoming, -> { where("date_time > ?", Time.now) }
   scope :past, -> { where("date_time < ?", Time.now) }
 
+  def self.default_scope
+    where("uid NOT like 'XXX%'")
+  end
+
   def upcoming?
     date_time > Time.now
   end
