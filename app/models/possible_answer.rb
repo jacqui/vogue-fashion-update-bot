@@ -2,6 +2,7 @@ class PossibleAnswer < ApplicationRecord
   belongs_to :brand, optional: true
   belongs_to :question
   has_one :response
+  accepts_nested_attributes_for :response, reject_if: lambda {|attributes| attributes['text'].blank?}
 
   def appropriate_response
     # free-text questions don't have any possible answers, so look up the
