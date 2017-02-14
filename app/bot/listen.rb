@@ -44,7 +44,7 @@ if Rails.env.production?
       text = user.designers_following_text
       message.reply(text: text)
       sent_message.update!(text: text, sent_at: Time.now)
-    when /latest shows|upcoming shows|upcoming/i
+    when /upcoming shows|upcoming/i
       if Show.upcoming.any?
         text = Content.find_by_label("upcoming_shows").body
         next_three = Show.upcoming.order("date_time ASC").limit(3)
@@ -301,6 +301,17 @@ if Rails.env.production?
       end
       sent_message.update!(text: text, sent_at: Time.now)
 
+    when /latest/i
+      if Show.past.any?
+        text = Content.find_by_label("upcoming_shows").body
+        shows = Show.past.order("date_time DESC").limit(3)
+        user.deliver_message_for(shows, "View the Show")
+      else
+        text = Content.find_by_label("no_upcoming_shows").body
+        postback.reply(text: text)
+      end
+      sent_message.update!(text: text, sent_at: Time.now)
+      puts text
     when /upcoming/i
       if Show.upcoming.any?
         text = Content.find_by_label("upcoming_shows").body + " "
