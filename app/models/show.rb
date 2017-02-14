@@ -69,7 +69,7 @@ class Show < ApplicationRecord
   end
 
   def url
-    "http://vogue.co.uk/shows/#{uid}"
+    "http://vogue.co.uk/shows/uid/#{uid}"
   end
 
   def send_message(user)
