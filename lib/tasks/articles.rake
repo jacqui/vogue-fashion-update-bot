@@ -30,10 +30,13 @@ namespace :articles do
       end
 
       articleUrl = "http://vogue.co.uk/article/uid/#{list_item['uid']}"
+      display_date = list_item['display_date']
+      puts "display date: #{display_date}"
+
       if article = Article.where(title: list_item['title']).first
-        article.update(sort_order: itemData['priority'])
+        article.update(sort_order: itemData['priority'], display_date: display_date)
         puts "found existing article: #{article.id} #{article.title}"
-      elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: list_item['display_date'], publish_time: list_item['published_at'], tag: tag, image_url: imageUrl, sort_order: itemData['priority'])
+      elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: display_date, publish_time: list_item['published_at'], tag: tag, image_url: imageUrl, sort_order: itemData['priority'])
         puts "created article: #{article.id} #{article.title}"
       end
       counter += 1
