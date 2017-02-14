@@ -289,6 +289,12 @@ if Rails.env.production?
       )
       sent_message.update!(text: text, sent_at: Time.now)
 
+    when /top_stories/i
+      user.top_stories_subscription = true
+      user.save!
+
+      user.send_top_stories(4)
+
     when /OUR_PICKS|highlights/i
       shows = Show.where(major: true).order("date_time DESC").limit(4)
       if shows.any?
