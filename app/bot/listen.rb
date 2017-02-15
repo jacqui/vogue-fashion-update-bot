@@ -79,17 +79,17 @@ if Rails.env.production?
           buttons = brand_question.possible_answers.map do |pa|
             { type: 'postback', title: pa.value, payload: "brand:#{brand.id}:answer:#{pa.id}" }
           end
+          sentMessageText = brand_question.text
           replyMessageContents = {
             attachment: {
               type: 'template',
               payload: {
                 template_type: 'button',
-                text: brand_question.text,
+                text: sentMessageText,
                 buttons: buttons
               }
             }
           }
-          sentMessageText = brand_question.text
 
         # Failed finding possible set answers for the question about brands
         elsif brand_question
@@ -106,7 +106,7 @@ if Rails.env.production?
         puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
         sentMessageText = Content.find_by_label("unrecognised").body
         begin
-          replyMessageContents = { text: "#{text} '#{message.text}'" }
+          replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
         rescue => e
           puts e
         end
@@ -242,26 +242,25 @@ if Rails.env.production?
         buttons = @next_question.possible_answers.map do |pa|
           { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
         end
-        postback.reply(
+        sentMessageText = @next_question.text
+        replyMessageContents = {
           attachment: {
             type: 'template',
             payload: {
               template_type: 'button',
-              text: @next_question.text,
+              text: sentMessageText,
               buttons: buttons
             }
           }
-        )
-        sent_message.update!(text: @next_question.text, sent_at: Time.now)
+        }
       elsif @next_question
-        postback.reply(text: @next_question.text)
-        sent_message.update!(text: @next_question.text, sent_at: Time.now)
+        sentMessageText = @next_question.text
+        replyMessageContents = { text: sentMessageText }
       end
 
     when /my-designers|settings|designers|prefs|preferences/i
       sentMessageText = user.designers_following_text
-      postback.reply(text: text)
-      sent_message.update!(text: text, sent_at: Time.now)
+      sent_message.update!(text: sentMessageText, sent_at: Time.now)
 
     when 'get_started'
       @question = Question.starting
@@ -269,17 +268,16 @@ if Rails.env.production?
       buttons = @question.possible_answers.map do |pa|
         { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
       end
-      postback.reply(
+      replyMessageContents = {
         attachment: {
           type: 'template',
           payload: {
             template_type: 'button',
-            text: text,
+            text: sentMessageText,
             buttons: buttons
           }
         }
-      )
-      sent_message.update!(text: text, sent_at: Time.now)
+      }
 
     when /top_stories/i
       user.top_stories_subscription = true
