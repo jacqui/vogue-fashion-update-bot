@@ -2,7 +2,7 @@ namespace :articles do
   desc "find the articles for user top stories subscriptions..."
   task top: :environment do
     require 'http'
-    url = "http://vg.prod.api.condenet.co.uk/0.0/list/slug/top-stories?expand=list.list_items.object.article.images.default?published=1"
+    url = "http://vg.prod.api.condenet.co.uk/0.0/list/slug/facebook-bot-top-stories?expand=list.list_items.object.article.images.default?published=1"
     data = HTTP.get(url).parse
 
     if (data.empty? || data['data'].nil? || data['data']['list_items'].nil? )
