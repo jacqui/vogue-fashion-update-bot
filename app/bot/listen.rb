@@ -29,16 +29,17 @@ if Rails.env.production?
     case message.text
     when /start/i
       @question = Question.starting
+      sentMessageText = @question.text
+
       multipleTexts = @question.text.split(/\r\n/)
       if multipleTexts.size > 1
+        sentMessageText = multipleTexts.pop
         multipleTexts.each do |question_text|
           if question_text != multipleTexts.last
             message.reply(text: question_text)
           end
         end
       end
-
-      sentMessageText = @question.text
 
       buttons = @question.possible_answers.map do |pa|
         { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
@@ -69,6 +70,7 @@ if Rails.env.production?
         sentMessageText = Content.find_by_label("no_upcoming_shows").body
         replyMessageContents = { text: sentMessageText }
       end
+
     when /our picks|highlights|best/i
       shows = Show.where(major: true).order("date_time DESC").limit(4)
       if shows.any?
@@ -282,6 +284,15 @@ if Rails.env.production?
     when 'get_started'
       @question = Question.starting
       sentMessageText = @question.text
+      multipleTexts = sentMessageText.split(/\r\n/)
+      if multipleTexts.size > 1
+        sentMessageText = multipleTexts.pop
+        multipleTexts.each do |question_text|
+          if question_text != multipleTexts.last
+            postback.reply(text: question_text)
+          end
+        end
+      end
       buttons = @question.possible_answers.map do |pa|
         { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
       end
@@ -333,11 +344,20 @@ if Rails.env.production?
       
     when /help/i
       sentMessageText = Content.find_by_label("help").body
+      multipleTexts = sentMessageText.split(/\r\n/)
+      if multipleTexts.size > 1
+        sentMessageText = multipleTexts.pop
+        multipleTexts.each do |question_text|
+          if question_text != multipleTexts.last
+            postback.reply(text: question_text)
+          end
+        end
+      end
       replyMessageContents = { text: sentMessageText }
       
     else
       puts postback.payload
-      sentMessageText = "Unknown postback: #{postback.payload}"
+      sentMessageText = Content.find_by_label("unrecognised").body
       replyMessageContents = { text: sentMessageText }
     end
 
