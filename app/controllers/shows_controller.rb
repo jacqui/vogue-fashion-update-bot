@@ -4,7 +4,8 @@ class ShowsController < ApplicationController
   # GET /shows
   # GET /shows.json
   def index
-    @shows = Show.all
+    page = params[:page] ? params[:page] : 1
+    @shows = Show.page(page)
   end
 
   # GET /shows/1

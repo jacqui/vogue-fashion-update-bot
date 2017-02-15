@@ -39,6 +39,7 @@ gem 'facebook-messenger', require: 'facebook/messenger'
 gem 'dotenv-rails', require: 'dotenv/rails-now'
 gem "http"
 gem 'addressable'
+gem 'kaminari'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

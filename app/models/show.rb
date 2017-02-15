@@ -14,7 +14,7 @@ class Show < ApplicationRecord
   scope :past, -> { where("date_time < ?", Time.now) }
 
   def self.default_scope
-    where("uid NOT like 'XXX%'")
+    where("uid NOT like 'XXX%'").order("title ASC")
   end
 
   def upcoming?

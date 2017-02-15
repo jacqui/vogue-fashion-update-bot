@@ -11,7 +11,87 @@
     </div>
   <% end %>
 
-  <div class="actions">
-    <%= f.submit %>
+  <div class="row">
+    <div class="form-group col-md-12">
+      <%= f.label :title %>
+      <%= f.text_field :title, class: "form-control col-10" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="form-group col-md-12">
+      <%= f.label :major %>
+      <%= f.check_box :major, class: "form-control", "aria-describedby": "majorHelp"  %>
+      <small id="majorHelp" class="form-text text-muted">Taken from the CMS's 'is_major' flag, determines if show appears in 'Our Picks' or highlights.</small>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-6">
+      <%= f.label :uid %>
+      <%= f.text_field :uid, class: "form-control" %>
+    </div>
+
+    <div class="form-group col-md-6">
+      <%= f.label :slug %>
+      <%= f.text_field :slug, class: "form-control" %>
+    </div>
+    </div>
+
+  <div class="row">
+    <div class="form-group col-md-12">
+      <%= f.label :brand %>
+
+      <%= f.select(:brand_id) do %>
+        <% Brand.all.map{|b| [b.title, b.id]}.each do |c| -%>
+          <%= content_tag(:option, c.first, value: c.last) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-4">
+      <%= f.label :season %>
+
+      <%= f.select(:season_id) do %>
+        <% Season.all.map{|b| [b.title, b.id]}.each do |c| -%>
+          <%= content_tag(:option, c.first, value: c.last) %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="form-group col-md-3">
+      <%= f.label :location %>
+
+      <%= f.select(:location_id) do %>
+        <% Location.all.map{|b| [b.title, b.id]}.each do |c| -%>
+          <%= content_tag(:option, c.first, value: c.last) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-6">
+      <%= f.label :published_at %>
+      <%= f.date_field :published_at, class: "form-control", "aria-describedby": "pubHelp"  %>
+      <small id="pubHelp" class="form-text text-muted">The date this show was published on vogue.co.uk.</small>
+    </div>
+
+    <div class="form-group col-md-6">
+      <%= f.label :date_time %>
+      <%= f.date_field :date_time, class: "form-control", "aria-describedby": "dtHelp"  %>
+      <small id="dtHelp" class="form-text text-muted">The date this show actually happened.</small>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-md-6">
+      <%= f.label :image_uid %>
+      <%= f.text_field :image_uid, class: "form-control", "aria-describedby": "imgHelp"  %>
+      <small id="imgHelp" class="form-text text-muted">Unique identifier (from the CMS) of the image used to form its URL.</small>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <%= f.submit 'Update', class: 'btn btn-primary' %>
+    </div>
   </div>
 <% end %>
