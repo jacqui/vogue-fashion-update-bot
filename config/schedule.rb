@@ -9,11 +9,15 @@ env :PATH, ENV['PATH']
 #
 set :output, "/tmp/runway_cron.log"
 #
-every 15.minutes do
-  rake "shows:populate"
+every 1.hour do
+  rake "shows:major"
 end
 
-every 5.minutes do
+every 90.minutes do
+  rake "shows:regular"
+end
+
+every 15.minutes do
   rake "articles:subs"
 end
 
