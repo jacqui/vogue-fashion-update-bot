@@ -112,15 +112,19 @@ if Rails.env.production?
       end
     end
 
-    if sendTopStories
-      user.send_top_stories(4)
-    elsif shows.any?
-      user.deliver_message_for(shows, "View the Show")
-    elsif articles.any?
-      user.deliver_message_for(articles, "View the Article")
-    else
-      message.reply(replyMessageContents)
-      sent_message.update!(text: sentMessageText, sent_at: Time.now)
+    begin
+      if sendTopStories
+        user.send_top_stories(4)
+      elsif shows.any?
+        user.deliver_message_for(shows, "View the Show")
+      elsif articles.any?
+        user.deliver_message_for(articles, "View the Article")
+      else
+        message.reply(replyMessageContents)
+        sent_message.update!(text: sentMessageText, sent_at: Time.now)
+      end
+    rescue => e
+      puts e
     end
   end
 
@@ -320,15 +324,19 @@ if Rails.env.production?
       replyMessageContents = { text: sentMessageText }
     end
 
-    if sendTopStories
-      user.send_top_stories(4)
-    elsif shows.any?
-      user.deliver_message_for(shows, "View the Show")
-    elsif articles.any?
-      user.deliver_message_for(articles, "View the Article")
-    else
-      postback.reply(replyMessageContents)
-      sent_message.update!(text: sentMessageText, sent_at: Time.now)
+    begin
+      if sendTopStories
+        user.send_top_stories(4)
+      elsif shows.any?
+        user.deliver_message_for(shows, "View the Show")
+      elsif articles.any?
+        user.deliver_message_for(articles, "View the Article")
+      else
+        postback.reply(replyMessageContents)
+        sent_message.update!(text: sentMessageText, sent_at: Time.now)
+      end
+    rescue => e
+      puts e
     end
     @conversation.update(last_message_sent_at: Time.now)
   end
