@@ -1,4 +1,27 @@
 namespace :articles do
+  desc "check for articles with missing images and try to fill them in"
+  task images: :environment do
+    missing_images = Article.where("image_uid IS NULL")
+
+    require "http"
+
+    missing_images.each do |article|
+      puts "#{article.id} - #{article.title}"
+      url = "http://vg.prod.api.condenet.co.uk/0.0/article?title=#{article.title}&expand=article.images.default"
+      puts url
+      data = HTTP.get(url).parse
+      if data && data['data'] && data['data']['items'] && data['data']['items'].first
+        articleData = data['data']['items'].first
+        if articleData && articleData['images'] && articleData['images']['default']
+          imgData = articleData['images']['default']
+          if imgData && imgData['uid']
+            puts "  -- found image, updating with #{imgData['uid']}"
+            article.update(image_uid: imgData['uid'])
+          end
+        end
+      end
+    end
+  end
   desc "find the articles for user top stories subscriptions..."
   task top: :environment do
     require 'http'
