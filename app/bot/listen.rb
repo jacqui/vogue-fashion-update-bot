@@ -19,61 +19,56 @@ if Rails.env.production?
     @conversation = user.conversation
     puts "Convo: #{@conversation.id}"
 
+    replyMessageContents = nil
+    sentMessageText = nil
+    shows = []
+    articles = []
+
     Message.log_it(message)
 
     case message.text
     when /start/i
       @question = Question.starting
-      text = @question.text
+      sentMessageText = @question.text
       buttons = @question.possible_answers.map do |pa|
         { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
       end
-      message.reply(
-        attachment: {
+      replyMessageContents = { attachment: {
           type: 'template',
           payload: {
             template_type: 'button',
-            text: text,
+            text: sentMessageText,
             buttons: buttons
           }
         }
-      )
-      sent_message.update!(text: text, sent_at: Time.now)
+      }
 
     when /designers|settings/i
-      text = user.designers_following_text
-      message.reply(text: text)
-      sent_message.update!(text: text, sent_at: Time.now)
+      sentMessageText = user.designers_following_text
+      replyMessageContents = { text: sentMessageText }
+
     when /upcoming shows|upcoming/i
       if Show.upcoming.any?
-        text = Content.find_by_label("upcoming_shows").body
+        sentMessageText = Content.find_by_label("upcoming_shows").body
         next_three = Show.upcoming.order("date_time ASC").limit(3)
-        text += next_three.map do |show|
+        sentMessageText += next_three.map do |show|
           "#{show.title} at #{show.date_time.to_formatted_s(:long_ordinal)}"
         end.join(', ')
-        puts text
-        message.reply(text: text)
+        replyMessageContents = { text: sentMessageText }
       else
-        text = Content.find_by_label("no_upcoming_shows").body
-        message.reply(text: text)
+        sentMessageText = Content.find_by_label("no_upcoming_shows").body
+        replyMessageContents = { text: sentMessageText }
       end
-      sent_message.update!(text: text, sent_at: Time.now)
-      puts text
     when /our picks|highlights|best/i
       shows = Show.where(major: true).order("date_time DESC").limit(4)
       if shows.any?
-        text = Content.find_by_label("our_picks").body
-        message.reply(text: text)
-        user.deliver_message_for(shows, "View the Show")
+        sentMessageText = Content.find_by_label("our_picks").body
+        replyMessageContents = { text: sentMessageText }
       else
-        text = Content.find_by_label("no_upcoming_shows").body
-        message.reply(text: text)
+        sentMessageText = Content.find_by_label("no_upcoming_shows").body
       end
-      sent_message.update!(text: text, sent_at: Time.now)
     when /help/i
-      text = Content.find_by_label("help").body
-      message.reply(text: text)
-      sent_message.update!(text: text, sent_at: Time.now)
+      sentMessageText = Content.find_by_label("help").body
     else
       if brand = Brand.where("title ilike ?", message.text.downcase).first
         puts "Found matching brand: #{brand.id} - #{brand.title}"
@@ -83,7 +78,7 @@ if Rails.env.production?
           buttons = brand_question.possible_answers.map do |pa|
             { type: 'postback', title: pa.value, payload: "brand:#{brand.id}:answer:#{pa.id}" }
           end
-          message.reply(
+          replyMessageContents = {
             attachment: {
               type: 'template',
               payload: {
@@ -92,31 +87,40 @@ if Rails.env.production?
                 buttons: buttons
               }
             }
-          )
-          sent_message.update!(text: brand_question.text, sent_at: Time.now)
+          }
+          sentMessageText = brand_question.text
 
-          # Failed finding possible set answers for the question about brands
+        # Failed finding possible set answers for the question about brands
         elsif brand_question
-          message.reply(text: brand_question.text).body
-          sent_message.update!(text: brand_question.text, sent_at: Time.now)
-          # Failed finding the brand question at all, fallback to content
+          sentMessageText = brand_question.text
+          replyMessageContents = { text: brand_question.text }
+
+        # Failed finding the brand question at all, fallback to content
         else
-          text = Content.find_by_label("brand_question").body
-          message.reply(text: text)
-          sent_message.update!(text: text, sent_at: Time.now)
+          sentMessageText = Content.find_by_label("brand_question").body
         end
 
-        # Failed finding a match for the brand entered
+      # Failed finding a match for the brand entered
       else
         puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
-        text = Content.find_by_label("unrecognised").body
+        sentMessageText = Content.find_by_label("unrecognised").body
         begin
-          message.reply(text: "#{text} '#{message.text}'")
-          sent_message.update!(text: text, sent_at: Time.now)
+          replyMessageContents = { text: "#{text} '#{message.text}'" }
         rescue => e
           puts e
         end
       end
+    end
+
+    if sendTopStories
+      user.send_top_stories(4)
+    elsif shows.any?
+      user.deliver_message_for(shows, "View the Show")
+    elsif articles.any?
+      user.deliver_message_for(articles, "View the Article")
+    else
+      message.reply(replyMessageContents)
+      sent_message.update!(text: sentMessageText, sent_at: Time.now)
     end
   end
 
@@ -130,6 +134,11 @@ if Rails.env.production?
     puts "Convo: #{@conversation.id}"
 
     Message.log_it(postback)
+
+    replyMessageContents = nil
+    sentMessageText = nil
+    shows = []
+    articles = []
 
     case postback.payload
 
@@ -147,30 +156,23 @@ if Rails.env.production?
         if answer.action == "send_show_info"
           # find show information and send it
           shows = brand.shows.order("date_time DESC").limit(4)
-          if shows.any?
-            user.deliver_message_for(shows, "View the Show")
-          else
-            text = Content.find_by_label("no_shows_for_brand").body
-            postback.reply(text: text)
-            sent_message.update!(text: text, sent_at: Time.now)
+          if !shows.any?
+            sentMessageText = Content.find_by_label("no_shows_for_brand").body
+            replyMessageContents = { text: sentMessageText }
           end
         end
 
         if answer.action == "send_latest_news"
           articles = brand.articles.order("created_at DESC").limit(4)
-          if articles.any?
-            user.deliver_message_for(articles, "View the Article")
-          else
-            text = Content.find_by_label("no_shows_for_brand").body
-            postback.reply(text: text)
-            sent_message.update!(text: text, sent_at: Time.now)
+          if !articles.any?
+            sentMessageText = Content.find_by_label("no_shows_for_brand").body
+            replyMessageContents = { text: sentMessageText }
           end
         end
 
       else
-        text = Content.find_by_label("unrecognised").body
-        postback.reply(text: text)
-        sent_message.update!(text: text, sent_at: Time.now)
+        sentMessageText = Content.find_by_label("unrecognised").body
+        replyMessageContents = { text: sentMessageText }
       end
 
     when /^answer:/
@@ -182,8 +184,9 @@ if Rails.env.production?
 
       begin
         appropriate_response = @answer.appropriate_response
-        postback.reply(text: appropriate_response.text)
-        sent_message.update!(text: appropriate_response.text, sent_at: Time.now)
+        sentMessageText = appropriate_response.text
+        replyMessageContents = { text: sentMessageText }
+
       rescue => e
         puts e
         puts "failed finding an appropriate_response for answer ##{@answer.id}"
@@ -193,34 +196,28 @@ if Rails.env.production?
         # respond with the most recent shows
         puts "*** SEND LATEST SHOWS ***"
         if Show.past.any?
-          text = Content.find_by_label("latest_shows").body
+          sentMessageText = Content.find_by_label("latest_shows").body
           shows = Show.past.order("date_time DESC").limit(3)
-          user.deliver_message_for(shows, "View the Show")
         else
-          text = Content.find_by_label("no_latest_shows").body
-          postback.reply(text: text)
+          sentMessageText = Content.find_by_label("no_latest_shows").body
+          replyMessageContents = { text: sentMessageText }
+
         end
-        sent_message.update!(text: text, sent_at: Time.now)
-        puts text
 
       elsif @answer.category == "runway_shows" && @answer.action == "send_vogue_picks_shows"
         # respond with vogue picks of the shows
-        puts "*** SEND VOGUE PICKS ***"
         shows = Show.where(major: true).order("date_time DESC").limit(4)
-        if shows.any?
-          user.deliver_message_for(shows, "View the Show")
-        else
-          text = Content.find_by_label("no_upcoming_shows").body
-          postback.reply(text: text)
+        if !shows.any?
+          sentMessageText = Content.find_by_label("no_upcoming_shows").body
+          replyMessageContents = { text: sentMessageText }
         end
 
       elsif @answer.question.category == "top_stories" && @answer.action == "subscribe_to_top_stories"
         # subscribe to top stories
-        puts "*** SUBSCRIBE TO TOP STORIES ***"
         user.top_stories_subscription = true
-        user.save!
+        user.save
 
-        user.send_top_stories(4)
+        sendTopStories = true
       end
 
       @next_question = if @answer.action == "skip_to_next_question" && @answer.next_question_id.present?
@@ -256,13 +253,13 @@ if Rails.env.production?
       end
 
     when /my-designers|settings|designers|prefs|preferences/i
-      text = user.designers_following_text
+      sentMessageText = user.designers_following_text
       postback.reply(text: text)
       sent_message.update!(text: text, sent_at: Time.now)
 
     when 'get_started'
       @question = Question.starting
-      text = @question.text
+      sentMessageText = @question.text
       buttons = @question.possible_answers.map do |pa|
         { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
       end
@@ -281,56 +278,58 @@ if Rails.env.production?
     when /top_stories/i
       user.top_stories_subscription = true
       user.save!
-
-      user.send_top_stories(4)
+      sentMessageText = "Top Stories for user ##{user.fbid}"
 
     when /OUR_PICKS|highlights/i
       shows = Show.where(major: true).order("date_time DESC").limit(4)
       if shows.any?
-        text = Content.find_by_label("our_picks").body
-        postback.reply(text: text)
-        user.deliver_message_for(shows, "View the Show")
+        sentMessageText = Content.find_by_label("our_picks").body
       else
-        text = Content.find_by_label("no_upcoming_shows").body
-        postback.reply(text: text)
+        sentMessageText = Content.find_by_label("no_upcoming_shows").body
+        replyMessageContents = { text: sentMessageText }
       end
-      sent_message.update!(text: text, sent_at: Time.now)
 
     when /latest/i
       if Show.past.any?
-        text = Content.find_by_label("latest_shows").body
+        sentMessageText = Content.find_by_label("latest_shows").body
         shows = Show.past.order("date_time DESC").limit(3)
-        user.deliver_message_for(shows, "View the Show")
       else
-        text = Content.find_by_label("no_latest_shows").body
-        postback.reply(text: text)
+        sentMessageText = Content.find_by_label("no_latest_shows").body
+        replyMessageContents = { text: sentMessageText }
       end
-      sent_message.update!(text: text, sent_at: Time.now)
-      puts text
+
     when /upcoming/i
       if Show.upcoming.any?
-        text = Content.find_by_label("upcoming_shows").body + " "
+        sentMessageText = Content.find_by_label("upcoming_shows").body + " "
         next_three = Show.upcoming.order("date_time ASC").limit(3)
-        text += next_three.map do |show|
+        sentMessageText += next_three.map do |show|
           "#{show.title} at #{show.date_time.to_formatted_s(:long_ordinal)}"
         end.join(', ')
-        puts text
       else
-        text = Content.find_by_label("no_upcoming_shows").body
+        sentMessageText = Content.find_by_label("no_upcoming_shows").body
       end
-      postback.reply(text: text)
-      sent_message.update!(text: text, sent_at: Time.now)
+      replyMessageContents = { text: sentMessageText }
+      
     when /help/i
-      text = Content.find_by_label("help").body
-      postback.reply(text: text)
-      sent_message.update!(text: text, sent_at: Time.now)
+      sentMessageText = Content.find_by_label("help").body
+      replyMessageContents = { text: sentMessageText }
+      
     else
       puts postback.payload
-      text = "Unknown postback: #{postback.payload}"
-      postback.reply(text: text)
-      sent_message.update!(text: text, sent_at: Time.now)
+      sentMessageText = "Unknown postback: #{postback.payload}"
+      replyMessageContents = { text: sentMessageText }
     end
 
+    if sendTopStories
+      user.send_top_stories(4)
+    elsif shows.any?
+      user.deliver_message_for(shows, "View the Show")
+    elsif articles.any?
+      user.deliver_message_for(articles, "View the Article")
+    else
+      postback.reply(replyMessageContents)
+      sent_message.update!(text: sentMessageText, sent_at: Time.now)
+    end
     @conversation.update(last_message_sent_at: Time.now)
   end
 
