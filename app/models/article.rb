@@ -3,7 +3,6 @@ class Article < ApplicationRecord
   has_many :notifications
 
   validates :url, uniqueness: true
-  validates :uid, uniqueness: true
 
   after_create :setup_messages
 
