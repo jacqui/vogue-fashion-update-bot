@@ -69,6 +69,7 @@ if Rails.env.production?
       end
     when /help/i
       sentMessageText = Content.find_by_label("help").body
+      replyMessageContents = { text: sentMessageText }
     else
       if brand = Brand.where("title ilike ?", message.text.downcase).first
         puts "Found matching brand: #{brand.id} - #{brand.title}"
