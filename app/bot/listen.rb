@@ -33,9 +33,11 @@ if Rails.env.production?
 
       multipleTexts = @question.text.split(/\r\n/)
       if multipleTexts.size > 1
-        sentMessageText = multipleTexts.pop
+        puts "Multiple Message Question"
+        sentMessageText = multipleTexts.pop # set it to the last message text
+        puts "Sending '#{sentMessageText}' last"
         multipleTexts.each do |question_text|
-          if question_text != multipleTexts.last
+          if question_text != sentMessageText
             message.reply(text: question_text)
           end
         end
@@ -288,7 +290,7 @@ if Rails.env.production?
       if multipleTexts.size > 1
         sentMessageText = multipleTexts.pop
         multipleTexts.each do |question_text|
-          if question_text != multipleTexts.last
+          if question_text != sentMessageText
             postback.reply(text: question_text)
           end
         end
@@ -348,7 +350,7 @@ if Rails.env.production?
       if multipleTexts.size > 1
         sentMessageText = multipleTexts.pop
         multipleTexts.each do |question_text|
-          if question_text != multipleTexts.last
+          if question_text != sentMessageText
             postback.reply(text: question_text)
           end
         end
