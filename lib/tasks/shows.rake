@@ -37,45 +37,15 @@ namespace :shows do
     puts "Paris..."
     Show.parse_grid("Paris", "Autumn/Winter 2017", "paris.csv")
     puts
-    
+
   end
 
-  desc "TODO"
-  task populate: :environment do
+  desc "backfill major runway shows already published"
+  task major: :environment do
     require "http"
     require "addressable/uri"
-    
-    puts "Initial (non-major) shows count: #{Show.where(major: false).count}"
-    shows = paginated_get(major: 0)
-    shows.each do |show|
-      locationData = show.delete('location')
-      location = Location.where(title: locationData['title'], slug: locationData['slug'], uid: locationData['uid']).first_or_create!
 
-      seasonData = show.delete('season')
-      season = Season.where(title: seasonData['title'], slug: seasonData['slug'], uid: seasonData['uid']).first_or_create!
-
-      brandData = show.delete('brand')
-      brand = Brand.where(title: brandData['title'], slug: brandData['slug'], uid: brandData['uid']).first_or_create!
-
-      imageUid = if show['images'] && show['images']['default'] && show['images']['default']['uid']
-                   show['images']['default']['uid']
-                 end
-      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid).first
-        theShow.update(major: show['is_major'])
-        theShow.update(date_time: show['date_time'])
-      else
-        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid, major: show['is_major'], date_time: show['date_time'])
-        if theShow.valid?
-          puts "Created show id##{theShow.id} for '#{theShow.title}'"
-        else
-          puts "Failed creating show #{theShow.title}: #{theShow.errors.full_messages}"
-        end
-      end
-    end
-
-    puts "Current (non-major) shows count: #{Show.where(major: false).count}"
-
-    puts "Initial (major) shows count: #{Show.where(major: true).count}"
+    puts "Initial shows (major) count: #{Show.where(major: true).count}"
     shows = paginated_get(major: 1)
     shows.each do |show|
       locationData = show.delete('location')
@@ -104,10 +74,46 @@ namespace :shows do
       end
     end
 
-    puts "Current (major) shows count: #{Show.where(major: true).count}"
+    puts "Current shows (major) count: #{Show.where(major: true).count}"
   end
 
+  desc "backfill non-major runway shows already published"
+  task regular: :environment do
+    require "http"
+    require "addressable/uri"
+
+    puts "Initial shows (regular) count: #{Show.where(major: false).count}"
+    shows = paginated_get(major: 0)
+    shows.each do |show|
+      locationData = show.delete('location')
+      location = Location.where(title: locationData['title'], slug: locationData['slug'], uid: locationData['uid']).first_or_create!
+
+      seasonData = show.delete('season')
+      season = Season.where(title: seasonData['title'], slug: seasonData['slug'], uid: seasonData['uid']).first_or_create!
+
+      brandData = show.delete('brand')
+      brand = Brand.where(title: brandData['title'], slug: brandData['slug'], uid: brandData['uid']).first_or_create!
+
+      imageUid = if show['images'] && show['images']['default'] && show['images']['default']['uid']
+                   show['images']['default']['uid']
+                 end
+      if theShow = Show.where(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid).first
+        theShow.update(major: show['is_major'])
+        theShow.update(date_time: show['date_time'])
+      else
+        theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid, major: show['is_major'], date_time: show['date_time'])
+        if theShow.valid?
+          puts "Created show id##{theShow.id} for '#{theShow.title}'"
+        else
+          puts "Failed creating show #{theShow.title}: #{theShow.errors.full_messages}"
+        end
+      end
+    end
+
+    puts "Current shows (regular) count: #{Show.where(major: false).count}"
+  end
 end
+
 
 def shows_url(params = {})
   page = params.delete(:page) { 1 }
