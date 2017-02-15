@@ -6,7 +6,9 @@ class User < ApplicationRecord
 
   def send_top_stories(quantity = 4)
     top_stories = Article.top_stories.limit(quantity)
-    self.deliver_message_for(top_stories, "View the Article")
+    if top_stories.any?
+      self.deliver_message_for(top_stories, "View the Article")
+    end
   end
 
   def subscribed_to_shows?
