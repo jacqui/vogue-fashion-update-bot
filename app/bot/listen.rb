@@ -345,8 +345,4 @@ if Rails.env.production?
     puts "Delivered message(s) #{delivery.ids}"
   end
 
-
-  Bot.on :read do |r|
-    puts "Message read: #{r}"
-  end
 end
