@@ -29,8 +29,11 @@ namespace :articles do
       puts "display date: #{display_date}"
 
       if article = Article.where(title: list_item['title']).first
-        article.update(sort_order: itemData['priority'], display_date: display_date)
         puts "found existing article: #{article.id} #{article.title}"
+        if article.sort_order.nil? && itemData['priority'].present? && article.display_date.nil? && display_date.present?
+          puts "updating sort order and display date on article"
+          article.update(sort_order: itemData['priority'], display_date: display_date)
+        end
       elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: display_date, publish_time: list_item['published_at'], tag: tag, image_uid: imageUid, sort_order: itemData['priority'])
         puts "created article: #{article.id} #{article.title}"
       end
