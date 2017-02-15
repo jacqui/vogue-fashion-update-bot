@@ -3,11 +3,12 @@ class Article < ApplicationRecord
   has_many :notifications
 
   validates :url, uniqueness: true
+  validates :uid, uniqueness: true
 
   after_create :setup_messages
 
   def self.top_stories
-    where("display_date IS NOT NULL").where(tag: "top-stories").where("DATE(display_date) = DATE('today')").order("sort_order ASC")
+    where(tag: "top-stories").where("DATE(updated_at) = DATE('today')").order("sort_order ASC")
   end
 
   def image_url
