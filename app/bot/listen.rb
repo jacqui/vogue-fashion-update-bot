@@ -110,8 +110,12 @@ if Rails.env.production?
       else
         puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
         text = Content.find_by_label("unrecognised").body
-        message.reply(text: "#{text} '#{message.text}'")
-        sent_message.update!(text: text, sent_at: Time.now)
+        begin
+          message.reply(text: "#{text} '#{message.text}'")
+          sent_message.update!(text: text, sent_at: Time.now)
+        rescue => e
+          puts e
+        end
       end
     end
   end
