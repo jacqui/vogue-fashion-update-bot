@@ -70,6 +70,6 @@ class ShowsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def show_params
-      params.fetch(:show, {})
+      params.require(:show).permit!
     end
 end
