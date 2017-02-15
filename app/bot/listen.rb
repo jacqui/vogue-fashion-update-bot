@@ -200,10 +200,14 @@ if Rails.env.production?
         if Show.past.any?
           sentMessageText = Content.find_by_label("latest_shows").body
           shows = Show.past.order("date_time DESC").limit(3)
+          begin
+            user.deliver_message_for(shows, "View the Show")
+          rescue => e
+            puts e
+          end
         else
           sentMessageText = Content.find_by_label("no_latest_shows").body
           replyMessageContents = { text: sentMessageText }
-
         end
 
       elsif @answer.category == "runway_shows" && @answer.action == "send_vogue_picks_shows"
@@ -212,6 +216,12 @@ if Rails.env.production?
         if !shows.any?
           sentMessageText = Content.find_by_label("no_upcoming_shows").body
           replyMessageContents = { text: sentMessageText }
+        else
+          begin
+            user.deliver_message_for(shows, "View the Show")
+          rescue => e
+            puts e
+          end
         end
 
       elsif @answer.question.category == "top_stories" && @answer.action == "subscribe_to_top_stories"
@@ -321,9 +331,7 @@ if Rails.env.production?
     end
 
     begin
-      if shows.any?
-        user.deliver_message_for(shows, "View the Show")
-      elsif articles.any?
+      if articles.any?
         user.deliver_message_for(articles, "View the Article")
       else
         postback.reply(replyMessageContents)
