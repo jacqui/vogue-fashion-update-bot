@@ -21,6 +21,7 @@ if Rails.env.production?
 
     replyMessageContents = nil
     sentMessageText = nil
+    sendTopStories = false
     shows = []
     articles = []
 
@@ -141,6 +142,7 @@ if Rails.env.production?
 
     replyMessageContents = nil
     sentMessageText = nil
+    sendTopStories = false
     shows = []
     articles = []
 
