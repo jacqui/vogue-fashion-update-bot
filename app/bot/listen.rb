@@ -29,7 +29,17 @@ if Rails.env.production?
     case message.text
     when /start/i
       @question = Question.starting
+      multipleTexts = @question.text.split(/\r\n/)
+      if multipleTexts.size > 1
+        multipleTexts.each do |question_text|
+          if question_text != multipleTexts.last
+            message.reply(text: question_text)
+          end
+        end
+      end
+
       sentMessageText = @question.text
+
       buttons = @question.possible_answers.map do |pa|
         { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
       end
