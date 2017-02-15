@@ -1,4 +1,28 @@
 namespace :shows do
+  desc "check for shows with missing images and try to fill them in"
+  task images: :environment do
+    missing_images = Show.where("image_uid IS NULL")
+
+    require "http"
+
+    missing_images.each do |show|
+      puts "#{show.id} - #{show.title}"
+      url = "http://vg.prod.api.condenet.co.uk/0.0/show?uid=#{show.uid}&expand=show.images.default"
+      puts url
+      data = HTTP.get(url).parse
+      if data && data['data'] && data['data']['items'] && data['data']['items'].first
+        showData = data['data']['items'].first
+        if showData && showData['images'] && showData['images']['default']
+          imgData = showData['images']['default']
+          if imgData && imgData['uid']
+            puts "  -- found image, updating with #{imgData['uid']}"
+            show.update(image_uid: imgData['uid'])
+          end
+        end
+      end
+    end
+  end
+
   desc "show grids: london"
   task london: :environment do
     require "csv"
