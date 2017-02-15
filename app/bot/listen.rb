@@ -256,7 +256,7 @@ if Rails.env.production?
 
     when /my-designers|settings|designers|prefs|preferences|follow_a_designer/i
       sentMessageText = user.designers_following_text
-      sent_message.update!(text: sentMessageText, sent_at: Time.now)
+      replyMessageContents = { text: sentMessageText }
 
     when 'get_started'
       @question = Question.starting
