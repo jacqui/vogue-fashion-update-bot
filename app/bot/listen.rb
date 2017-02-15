@@ -21,7 +21,6 @@ if Rails.env.production?
 
     replyMessageContents = nil
     sentMessageText = nil
-    sendTopStories = false
     shows = []
     articles = []
 
@@ -114,9 +113,7 @@ if Rails.env.production?
     end
 
     begin
-      if sendTopStories
-        user.send_top_stories(4)
-      elsif shows.any?
+      if shows.any?
         user.deliver_message_for(shows, "View the Show")
       elsif articles.any?
         user.deliver_message_for(articles, "View the Article")
@@ -142,7 +139,6 @@ if Rails.env.production?
 
     replyMessageContents = nil
     sentMessageText = nil
-    sendTopStories = false
     shows = []
     articles = []
 
@@ -223,7 +219,7 @@ if Rails.env.production?
         user.top_stories_subscription = true
         user.save
 
-        sendTopStories = true
+        user.send_top_stories(4)
       end
 
       @next_question = if @answer.action == "skip_to_next_question" && @answer.next_question_id.present?
@@ -282,7 +278,7 @@ if Rails.env.production?
     when /top_stories/i
       user.top_stories_subscription = true
       user.save!
-      sentMessageText = "Top Stories for user ##{user.fbid}"
+      user.send_top_stories(4)
 
     when /OUR_PICKS|highlights/i
       shows = Show.where(major: true).order("date_time DESC").limit(4)
@@ -325,9 +321,7 @@ if Rails.env.production?
     end
 
     begin
-      if sendTopStories
-        user.send_top_stories(4)
-      elsif shows.any?
+      if shows.any?
         user.deliver_message_for(shows, "View the Show")
       elsif articles.any?
         user.deliver_message_for(articles, "View the Article")
