@@ -200,6 +200,12 @@ if Rails.env.production?
           if !shows.any?
             sentMessageText = Content.find_by_label("no_shows_for_brand").body
             replyMessageContents = { text: sentMessageText }
+          else
+            begin
+              user.deliver_message_for(shows, "View the Show")
+            rescue => e
+              puts "Failed replying to message #{postback.inspect} because: #{e}"
+            end
           end
         end
 
@@ -341,6 +347,11 @@ if Rails.env.production?
       shows = Show.where(major: true).order("date_time DESC").limit(4)
       if shows.any?
         sentMessageText = Content.find_by_label("our_picks").body
+          begin
+            user.deliver_message_for(shows, "View the Show")
+          rescue => e
+            puts "Failed replying to message #{postback.inspect} because: #{e}"
+          end
       else
         sentMessageText = Content.find_by_label("no_upcoming_shows").body
         replyMessageContents = { text: sentMessageText }
@@ -350,6 +361,11 @@ if Rails.env.production?
       if Show.past.any?
         sentMessageText = Content.find_by_label("latest_shows").body
         shows = Show.past.order("date_time DESC").limit(3)
+        begin
+          user.deliver_message_for(shows, "View the Show")
+        rescue => e
+          puts "Failed replying to message #{postback.inspect} because: #{e}"
+        end
       else
         sentMessageText = Content.find_by_label("no_latest_shows").body
         replyMessageContents = { text: sentMessageText }
