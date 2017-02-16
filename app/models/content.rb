@@ -3,6 +3,8 @@ class Content < ApplicationRecord
   validates :label, uniqueness: true, presence: true
   validates :body, presence: true
 
+  URL_TRACKING_PARAMS = "?utm_campaign=trial&utm_medium=social&utm_source=facebookbot"
+
   after_save :update_facebook
 
   include Facebook::Messenger
@@ -49,7 +51,7 @@ class Content < ApplicationRecord
         {
           type: 'web_url',
           title: 'Subscribe to Vogue',
-          url: 'http://www.vogue.co.uk/subscribe/'
+          url: 'http://www.vogue.co.uk/subscribe/' + URL_TRACKING_PARAMS
         }
       ]
     }, access_token: ENV['ACCESS_TOKEN'])
