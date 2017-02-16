@@ -1,7 +1,6 @@
 class Article < ApplicationRecord
-
   has_many :notifications
-  belongs_to :brand
+  belongs_to :brand, optional: true
 
   validates :url, uniqueness: true
 
@@ -15,6 +14,18 @@ class Article < ApplicationRecord
 
   def image_url
     "https://vg-images.condecdn.net/image/#{image_uid}/crop/500/0.525"
+  end
+
+  def shorten_url
+    return if url.blank? || url =~ /vogue.uk/
+    post_api = "http://po.st/api/shorten?longUrl=" + CGI.escape(url + URL_TRACKING_PARAMS) + "&apiKey=D0755A3C-CCFF-44D9-A6B6-1F11E209A591"
+    response = HTTP.get(post_api).parse
+    if response && response['status_txt'] == 'OK' && response['short_url']
+      puts response['short_url']
+      update(url: response['short_url'])
+    else
+      puts "failed to shorten '#{url}': #{response}"
+    end
   end
 
   def tracked_url
