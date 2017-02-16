@@ -70,10 +70,21 @@ class Show < ApplicationRecord
     end
   end
 
-  def url
-    "http://vogue.co.uk/shows/uid/#{uid}"
+  def shorten_url
+    return if uid.blank? || url =~ /vogue.uk/
+
+    show_url = "http://vogue.co.uk/shows/uid/#{uid}" + URL_TRACKING_PARAMS
+
+    post_api = "http://po.st/api/shorten?longUrl=" + show_url + "&apiKey=D0755A3C-CCFF-44D9-A6B6-1F11E209A591"
+    response = HTTP.get(post_api).parse
+    if response && response['status_txt'] == 'OK' && response['short_url']
+      puts response['short_url']
+      update(url: response['short_url'])
+    else
+      puts "failed to shorten '#{url}': #{response}"
+    end
   end
-  
+
   def tracked_url
     url + CGI.escape(URL_TRACKING_PARAMS)
   end

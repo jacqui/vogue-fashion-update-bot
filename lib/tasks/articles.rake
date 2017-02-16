@@ -142,4 +142,15 @@ namespace :articles do
       notification.update(sent: true, sent_at: Time.now)
     end
   end
+
+  desc "Generate shortened urls for articles"
+  task short: :environment do
+    counter = 0
+    Article.all.each do |a|
+      if counter % 5 == 0
+        sleep 1
+      end
+      a.shorten_url
+    end
+  end
 end
