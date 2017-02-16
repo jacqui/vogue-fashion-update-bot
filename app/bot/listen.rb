@@ -4,6 +4,8 @@ if Rails.env.production?
   Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
 
   Bot.on :message do |message|
+    return if message.text.nil?
+
     puts "Received '#{message.inspect}' from #{message.sender}"
 
     sent_message = User.create_with_sent_message(message)
