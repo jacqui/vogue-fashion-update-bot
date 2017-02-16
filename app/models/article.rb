@@ -28,10 +28,6 @@ class Article < ApplicationRecord
     end
   end
 
-  def tracked_url
-    url + CGI.escape(URL_TRACKING_PARAMS)
-  end
-
   def setup_messages
     puts "Setting up messages for delivery: '#{title}'..."
     brands = Brand.where(slug: tag)

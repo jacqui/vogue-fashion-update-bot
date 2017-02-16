@@ -85,10 +85,6 @@ class Show < ApplicationRecord
     end
   end
 
-  def tracked_url
-    url + CGI.escape(URL_TRACKING_PARAMS)
-  end
-
   def image_url
     "https://vg-images.condecdn.net/image/#{image_uid}/crop/500/0.525"
   end

@@ -62,12 +62,12 @@ class User < ApplicationRecord
         image_url: article.image_url,
         default_action: {
           type: "web_url",
-          url: article.tracked_url
+          url: article.url
         },
         buttons:[
           {
             type: "web_url",
-            url: article.tracked_url,
+            url: article.url,
             title: button_text
           }
         ]      
