@@ -156,7 +156,7 @@ def shows_url(params = {})
   page = params.delete(:page) { 1 }
   per_page = params.delete(:per_page) { 50 }
   major = params.delete(:major) { 0 }
-  "https://vg.prod.api.condenet.co.uk/0.0/show?sort=published_at,DESC&published=1&is_major=#{major}&is_active=1&expand=show.season&expand=show.brand&expand=show.location&location=London&location=Milan&location=Paris&expand=show.images.default&per_page=#{per_page}&page=#{page}"
+  "http://vg.prod.api.condenet.co.uk/0.0/show?sort=published_at,DESC&published=1&is_active=1&is_major=#{major}&expand=show.season&expand=show.brand&expand=show.location&page=#{page}&per_page=#{per_page}"
 end
     
 def get(params = {})
