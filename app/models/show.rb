@@ -75,7 +75,7 @@ class Show < ApplicationRecord
   end
   
   def tracked_url
-    url + URL_TRACKING_PARAMS
+    url + CGI.escape(URL_TRACKING_PARAMS)
   end
 
   def image_url
