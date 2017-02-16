@@ -1,14 +1,7 @@
 env :PATH, ENV['PATH']
+set :path, "/home/ubuntu/messenger_bot/current"
+set :output, {:error => '/home/ubuntu/messenger_bot/shared/log/cron_errors.log', :standard => '/home/ubuntu/messenger_bot/shared/log/cron_output.log'}
 
-# Use this file to easily define all of your cron jobs.
-#
-# It's helpful, but not entirely necessary to understand cron before proceeding.
-# http://en.wikipedia.org/wiki/Cron
-
-# Example:
-#
-set :output, "/tmp/runway_cron.log"
-#
 every 1.hour do
   rake "shows:major"
 end
