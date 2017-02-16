@@ -17,7 +17,7 @@ class Article < ApplicationRecord
   end
 
   def tracked_url
-    url + CGI.escape(URL_TRACKING_PARAMS)
+    CGI.escape(url + URL_TRACKING_PARAMS)
   end
 
   def setup_messages

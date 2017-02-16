@@ -69,7 +69,7 @@ if Rails.env.production?
               text: 'Visit British Vogue for fashion news, backstage photos, fashion trends, catwalk videos, supermodel interviews, beauty trends and celebrity party photos.',
               buttons: [{
                 type: "web_url",
-                url: "http://www.vogue.co.uk/" + Article::URL_TRACKING_PARAMS,
+                url: CGI.escape("http://www.vogue.co.uk/" + Article::URL_TRACKING_PARAMS),
                 title: sentMessageText
               }]
             }

@@ -51,7 +51,7 @@ class Content < ApplicationRecord
         {
           type: 'web_url',
           title: 'Subscribe to Vogue',
-          url: 'http://www.vogue.co.uk/subscribe/' + CGI.escape(URL_TRACKING_PARAMS)
+          url: CGI.escape('http://www.vogue.co.uk/subscribe/' + URL_TRACKING_PARAMS)
         }
       ]
     }, access_token: ENV['ACCESS_TOKEN'])
