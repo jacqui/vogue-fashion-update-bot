@@ -91,6 +91,7 @@ namespace :shows do
       else
         theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid, major: true, date_time: show['date_time'])
         if theShow.valid?
+          theShow.shorten_url
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
           puts "Failed creating show #{theShow.title}: #{theShow.errors.full_messages}"
@@ -127,6 +128,7 @@ namespace :shows do
       else
         theShow = Show.create(title: show['title'], slug: show['slug'], uid: show['uid'], brand: brand, season: season, location: location, image_uid: imageUid, major: show['is_major'], date_time: show['date_time'])
         if theShow.valid?
+          theShow.shorten_url
           puts "Created show id##{theShow.id} for '#{theShow.title}'"
         else
           puts "Failed creating show #{theShow.title}: #{theShow.errors.full_messages}"
