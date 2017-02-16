@@ -4,51 +4,51 @@ if Rails.env.production?
   Facebook::Messenger::Subscriptions.subscribe(access_token: ENV['ACCESS_TOKEN'])
 
   Bot.on :message do |message|
-    return if message.text.nil?
 
     puts "Received '#{message.inspect}' from #{message.sender}"
 
-    sent_message = User.create_with_sent_message(message)
-    user = sent_message.user
-    if sender = user.get_sender_profile
-      puts sender.inspect
-      user.update( first_name: sender['first_name'],
-                  last_name: sender['last_name'],
-                  gender: sender['gender'])
-    end
+    unless message.text.nil?
+      sent_message = User.create_with_sent_message(message)
+      user = sent_message.user
+      if sender = user.get_sender_profile
+        puts sender.inspect
+        user.update( first_name: sender['first_name'],
+                    last_name: sender['last_name'],
+                    gender: sender['gender'])
+      end
 
 
-    @conversation = user.conversation
-    puts "Convo: #{@conversation.id}"
+      @conversation = user.conversation
+      puts "Convo: #{@conversation.id}"
 
-    replyMessageContents = nil
-    sentMessageText = nil
-    shows = []
-    articles = []
+      replyMessageContents = nil
+      sentMessageText = nil
+      shows = []
+      articles = []
 
-    Message.log_it(message)
+      Message.log_it(message)
 
-    case message.text
-    when /start/i
-      @question = Question.starting
-      sentMessageText = @question.text
+      case message.text
+      when /start/i
+        @question = Question.starting
+        sentMessageText = @question.text
 
-      multipleTexts = @question.text.split(/\r\n/)
-      if multipleTexts.size > 1
-        puts "Multiple Message Question"
-        sentMessageText = multipleTexts.pop # set it to the last message text
-        puts "Sending '#{sentMessageText}' last"
-        multipleTexts.each do |question_text|
-          if question_text != sentMessageText
-            message.reply(text: question_text)
+        multipleTexts = @question.text.split(/\r\n/)
+        if multipleTexts.size > 1
+          puts "Multiple Message Question"
+          sentMessageText = multipleTexts.pop # set it to the last message text
+          puts "Sending '#{sentMessageText}' last"
+          multipleTexts.each do |question_text|
+            if question_text != sentMessageText
+              message.reply(text: question_text)
+            end
           end
         end
-      end
 
-      buttons = @question.possible_answers.map do |pa|
-        { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
-      end
-      replyMessageContents = { attachment: {
+        buttons = @question.possible_answers.map do |pa|
+          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+        end
+        replyMessageContents = { attachment: {
           type: 'template',
           payload: {
             template_type: 'button',
@@ -56,90 +56,91 @@ if Rails.env.production?
             buttons: buttons
           }
         }
-      }
+        }
 
-    when /designers|settings/i
-      sentMessageText = user.designers_following_text
-      replyMessageContents = { text: sentMessageText }
+      when /designers|settings/i
+        sentMessageText = user.designers_following_text
+        replyMessageContents = { text: sentMessageText }
 
-    when /upcoming shows|upcoming/i
-      if Show.upcoming.any?
-        sentMessageText = Content.find_by_label("upcoming_shows").body
-        next_three = Show.upcoming.order("date_time ASC").limit(3)
-        sentMessageText += next_three.map do |show|
-          "#{show.title} at #{show.date_time.to_formatted_s(:long_ordinal)}"
-        end.join(', ')
+      when /upcoming shows|upcoming/i
+        if Show.upcoming.any?
+          sentMessageText = Content.find_by_label("upcoming_shows").body
+          next_three = Show.upcoming.order("date_time ASC").limit(3)
+          sentMessageText += next_three.map do |show|
+            "#{show.title} at #{show.date_time.to_formatted_s(:long_ordinal)}"
+          end.join(', ')
+          replyMessageContents = { text: sentMessageText }
+        else
+          sentMessageText = Content.find_by_label("no_upcoming_shows").body
+          replyMessageContents = { text: sentMessageText }
+        end
+
+      when /our picks|highlights|best/i
+        shows = Show.where(major: true).order("date_time DESC").limit(4)
+        if shows.any?
+          sentMessageText = Content.find_by_label("our_picks").body
+          replyMessageContents = { text: sentMessageText }
+        else
+          sentMessageText = Content.find_by_label("no_upcoming_shows").body
+        end
+      when /help/i
+        sentMessageText = Content.find_by_label("help").body
         replyMessageContents = { text: sentMessageText }
       else
-        sentMessageText = Content.find_by_label("no_upcoming_shows").body
-        replyMessageContents = { text: sentMessageText }
-      end
-
-    when /our picks|highlights|best/i
-      shows = Show.where(major: true).order("date_time DESC").limit(4)
-      if shows.any?
-        sentMessageText = Content.find_by_label("our_picks").body
-        replyMessageContents = { text: sentMessageText }
-      else
-        sentMessageText = Content.find_by_label("no_upcoming_shows").body
-      end
-    when /help/i
-      sentMessageText = Content.find_by_label("help").body
-      replyMessageContents = { text: sentMessageText }
-    else
-      if brand = Brand.where("title ilike ?", message.text.downcase).first
-        puts "Found matching brand: #{brand.id} - #{brand.title}"
-        # TODO: add a followup question
-        brand_question = Question.where(category: "designers").first
-        if brand_question && brand_question.possible_answers.any?
-          buttons = brand_question.possible_answers.map do |pa|
-            { type: 'postback', title: pa.value, payload: "brand:#{brand.id}:answer:#{pa.id}" }
-          end
-          sentMessageText = brand_question.text
-          replyMessageContents = {
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'button',
-                text: sentMessageText,
-                buttons: buttons
+        if brand = Brand.where("title ilike ?", message.text.downcase).first
+          puts "Found matching brand: #{brand.id} - #{brand.title}"
+          # TODO: add a followup question
+          brand_question = Question.where(category: "designers").first
+          if brand_question && brand_question.possible_answers.any?
+            buttons = brand_question.possible_answers.map do |pa|
+              { type: 'postback', title: pa.value, payload: "brand:#{brand.id}:answer:#{pa.id}" }
+            end
+            sentMessageText = brand_question.text
+            replyMessageContents = {
+              attachment: {
+                type: 'template',
+                payload: {
+                  template_type: 'button',
+                  text: sentMessageText,
+                  buttons: buttons
+                }
               }
             }
-          }
 
-        # Failed finding possible set answers for the question about brands
-        elsif brand_question
-          sentMessageText = brand_question.text
-          replyMessageContents = { text: brand_question.text }
+            # Failed finding possible set answers for the question about brands
+          elsif brand_question
+            sentMessageText = brand_question.text
+            replyMessageContents = { text: brand_question.text }
 
-        # Failed finding the brand question at all, fallback to content
+            # Failed finding the brand question at all, fallback to content
+          else
+            sentMessageText = Content.find_by_label("brand_question").body
+          end
+
+          # Failed finding a match for the brand entered
         else
-          sentMessageText = Content.find_by_label("brand_question").body
-        end
-
-      # Failed finding a match for the brand entered
-      else
-        puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
-        sentMessageText = Content.find_by_label("unrecognised").body
-        begin
-          replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
-        rescue => e
-          puts e
+          puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
+          sentMessageText = Content.find_by_label("unrecognised").body
+          begin
+            replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
+          rescue => e
+            puts e
+          end
         end
       end
-    end
 
-    begin
-      if shows.any?
-        user.deliver_message_for(shows, "View the Show")
-      elsif articles.any?
-        user.deliver_message_for(articles, "View the Article")
-      else
-        message.reply(replyMessageContents)
-        sent_message.update!(text: sentMessageText, sent_at: Time.now)
+      begin
+        if shows.any?
+          user.deliver_message_for(shows, "View the Show")
+        elsif articles.any?
+          user.deliver_message_for(articles, "View the Article")
+        else
+          message.reply(replyMessageContents)
+          sent_message.update!(text: sentMessageText, sent_at: Time.now)
+        end
+      rescue => e
+        puts e
       end
-    rescue => e
-      puts e
     end
   end
 
@@ -345,7 +346,7 @@ if Rails.env.production?
         sentMessageText = Content.find_by_label("no_upcoming_shows").body
       end
       replyMessageContents = { text: sentMessageText }
-      
+
     when /help/i
       sentMessageText = Content.find_by_label("help").body
       multipleTexts = sentMessageText.split(/\r\n/)
@@ -358,7 +359,7 @@ if Rails.env.production?
         end
       end
       replyMessageContents = { text: sentMessageText }
-      
+
     else
       puts postback.payload
       sentMessageText = Content.find_by_label("unrecognised").body
