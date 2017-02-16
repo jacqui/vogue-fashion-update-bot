@@ -8,6 +8,15 @@ class ArticlesController < ApplicationController
     @articles = Article.page(page)
   end
 
+  def top_stories
+    page = params[:page] ? params[:page] : 1
+    @articles = Article.where(tag: "top-stories").page(page)
+    respond_to do |format|
+      format.html { render :index }
+      format.json { render json: @articles }
+    end
+  end
+
   # GET /articles/1
   # GET /articles/1.json
   def show

@@ -9,7 +9,11 @@ Rails.application.routes.draw do
   resources :broadcasts
   resources :messages
   resources :contents
-  resources :articles
+  resources :articles do
+    collection do
+      get 'top_stories'
+    end
+  end
   resources :brands
   resources :shows
   get 'data', to: 'welcome#data'
