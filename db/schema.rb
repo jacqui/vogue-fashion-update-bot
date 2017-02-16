@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170214170812) do
+ActiveRecord::Schema.define(version: 20170216125206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,8 @@ ActiveRecord::Schema.define(version: 20170214170812) do
     t.integer  "sort_order"
     t.datetime "display_date"
     t.string   "image_uid"
+    t.integer  "brand_id"
+    t.index ["brand_id"], name: "index_articles_on_brand_id", using: :btree
   end
 
   create_table "brands", force: :cascade do |t|
@@ -195,6 +197,7 @@ ActiveRecord::Schema.define(version: 20170214170812) do
     t.boolean  "top_stories_subscription", default: false
   end
 
+  add_foreign_key "articles", "brands"
   add_foreign_key "conversations", "users"
   add_foreign_key "notifications", "articles"
   add_foreign_key "notifications", "brands"

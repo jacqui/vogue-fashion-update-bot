@@ -109,8 +109,11 @@ namespace :articles do
         imageUid = if articleData['images'] && articleData['images']['default'] && articleData['images']['default']['uid']
                      articleData['images']['default']['uid']
                    end
-        article = Article.where(url: articleUrl).first
-        article ||= Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_uid: imageUid)
+        if article = Article.where(url: articleUrl).first
+          article.update(brand: brand) unless article.brand.present?
+        else
+          article = Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_uid: imageUid, brand: brand)
+        end
         puts "created article: #{article.id} #{article.title} - #{article.tag}"
         puts
       end

@@ -1,6 +1,7 @@
 class Article < ApplicationRecord
 
   has_many :notifications
+  belongs_to :brand
 
   validates :url, uniqueness: true
 
