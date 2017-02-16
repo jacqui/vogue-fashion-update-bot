@@ -62,6 +62,23 @@ if Rails.env.production?
         sentMessageText = user.designers_following_text
         replyMessageContents = { text: sentMessageText }
 
+      when /british vogue|vogue/i
+        sentMessageText = "vogue.co.uk"
+        replyMessageContents = {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text: 'British Vogue',
+              buttons: [{
+                type: "web_url",
+                url: "http://www.vogue.co.uk/" + Article::URL_TRACKING_PARAMS,
+                title: sentMessageText
+              }]
+            }
+          }
+        }
+
       when /upcoming shows|upcoming/i
         if Show.upcoming.any?
           sentMessageText = Content.find_by_label("upcoming_shows").body
@@ -83,6 +100,14 @@ if Rails.env.production?
         else
           sentMessageText = Content.find_by_label("no_upcoming_shows").body
         end
+
+      when /top stories|news|stories|top story|latest stories/i
+        # subscribe to top stories
+        user.top_stories_subscription = true
+        user.save
+
+        user.send_top_stories(4)
+
       when /help/i
         sentMessageText = Content.find_by_label("help").body
         replyMessageContents = { text: sentMessageText }
@@ -326,7 +351,7 @@ if Rails.env.production?
         replyMessageContents = { text: sentMessageText }
       end
 
-    when /latest/i
+    when /latest shows|latest runway|runway|catwalk/i
       if Show.past.any?
         sentMessageText = Content.find_by_label("latest_shows").body
         shows = Show.past.order("date_time DESC").limit(3)
