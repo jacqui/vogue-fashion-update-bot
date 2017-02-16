@@ -103,22 +103,28 @@ namespace :articles do
       Rails.cache.fetch("api:articles:brand:#{brand.id}") do
         puts "#{brand.id}: #{brand.title} (#{brand.slug})"
         url = "http://vg.prod.api.condenet.co.uk/0.0/article/?tag=#{brand.slug}&sort=published_at,DESC&expand=article.images.default"
-        data = HTTP.get(url).parse
-        break if (data.empty? || data['data'].nil? || data['data']['items'].nil?)
+        puts url
 
-        data['data']['items'].each do |articleData|
-          articleUrl = "http://vogue.co.uk/article/uid/#{articleData['uid']}"
+        begin
+          data = HTTP.get(url).parse
+          break if (data.empty? || data['data'].nil? || data['data']['items'].nil?)
 
-          imageUid = if articleData['images'] && articleData['images']['default'] && articleData['images']['default']['uid']
-                       articleData['images']['default']['uid']
-                     end
-          if article = Article.where(url: articleUrl).first
-            article.update(brand: brand) unless article.brand.present?
-          else
-            article = Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_uid: imageUid, brand: brand)
+          data['data']['items'].each do |articleData|
+            articleUrl = "http://vogue.co.uk/article/uid/#{articleData['uid']}"
+
+            imageUid = if articleData['images'] && articleData['images']['default'] && articleData['images']['default']['uid']
+                         articleData['images']['default']['uid']
+                       end
+            if article = Article.where(url: articleUrl).first
+              article.update(brand: brand) unless article.brand.present?
+            else
+              article = Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_uid: imageUid, brand: brand)
+            end
+            puts "created article: #{article.id} #{article.title} - #{article.tag}"
+            puts
           end
-          puts "created article: #{article.id} #{article.title} - #{article.tag}"
-          puts
+        rescue => e
+          puts e
         end
       end
     end
