@@ -20,7 +20,7 @@
     <% @messages.each do |message| %>
       <tr>
         <td><%= link_to message.id, message %></td>
-        <td><%= message.user.present? ? message.user.name : message.sender_id %></td>
+        <td><%= message.user.present? ? message.user.name : message.senderid %></td>
         <td><%= message.text %></td>
       </tr>
     <% end %>
