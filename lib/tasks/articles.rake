@@ -9,16 +9,18 @@ namespace :articles do
 
     missing_images.each do |article|
       puts "#{article.id} - #{article.title}"
-      url = "http://vg.prod.api.condenet.co.uk/0.0/article?title=#{article.title}&expand=article.images.default"
-      puts url
-      data = HTTP.get(url).parse
-      if data && data['data'] && data['data']['items'] && data['data']['items'].first
-        articleData = data['data']['items'].first
-        if articleData && articleData['images'] && articleData['images']['default']
-          imgData = articleData['images']['default']
-          if imgData && imgData['uid']
-            puts "  -- found image, updating with #{imgData['uid']}"
-            article.update(image_uid: imgData['uid'])
+      Rails.cache.fetch("api:articles:#{article.id}") do
+        url = "http://vg.prod.api.condenet.co.uk/0.0/article?title=#{article.title}&expand=article.images.default"
+        puts url
+        data = HTTP.get(url).parse
+        if data && data['data'] && data['data']['items'] && data['data']['items'].first
+          articleData = data['data']['items'].first
+          if articleData && articleData['images'] && articleData['images']['default']
+            imgData = articleData['images']['default']
+            if imgData && imgData['uid']
+              puts "  -- found image, updating with #{imgData['uid']}"
+              article.update(image_uid: imgData['uid'])
+            end
           end
         end
       end
@@ -98,24 +100,26 @@ namespace :articles do
     puts "rake articles:brands #{Time.now}"
     require 'http'
     Brand.all.each do |brand|
-      puts "#{brand.id}: #{brand.title} (#{brand.slug})"
-      url = "http://vg.prod.api.condenet.co.uk/0.0/article/?tag=#{brand.slug}&sort=published_at,DESC&expand=article.images.default"
-      data = HTTP.get(url).parse
-      break if (data.empty? || data['data'].nil? || data['data']['items'].nil?)
-      
-      data['data']['items'].each do |articleData|
-        articleUrl = "http://vogue.co.uk/article/uid/#{articleData['uid']}"
+      Rails.cache.fetch("api:articles:brand:#{brand.id}") do
+        puts "#{brand.id}: #{brand.title} (#{brand.slug})"
+        url = "http://vg.prod.api.condenet.co.uk/0.0/article/?tag=#{brand.slug}&sort=published_at,DESC&expand=article.images.default"
+        data = HTTP.get(url).parse
+        break if (data.empty? || data['data'].nil? || data['data']['items'].nil?)
 
-        imageUid = if articleData['images'] && articleData['images']['default'] && articleData['images']['default']['uid']
-                     articleData['images']['default']['uid']
-                   end
-        if article = Article.where(url: articleUrl).first
-          article.update(brand: brand) unless article.brand.present?
-        else
-          article = Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_uid: imageUid, brand: brand)
+        data['data']['items'].each do |articleData|
+          articleUrl = "http://vogue.co.uk/article/uid/#{articleData['uid']}"
+
+          imageUid = if articleData['images'] && articleData['images']['default'] && articleData['images']['default']['uid']
+                       articleData['images']['default']['uid']
+                     end
+          if article = Article.where(url: articleUrl).first
+            article.update(brand: brand) unless article.brand.present?
+          else
+            article = Article.create(title: articleData['title'], url: articleUrl, publish_time: articleData['published_at'], tag: brand.slug, image_uid: imageUid, brand: brand)
+          end
+          puts "created article: #{article.id} #{article.title} - #{article.tag}"
+          puts
         end
-        puts "created article: #{article.id} #{article.title} - #{article.tag}"
-        puts
       end
     end
   end
