@@ -9,7 +9,7 @@ class Article < ApplicationRecord
   after_create :setup_messages
 
   def self.top_stories
-    where(tag: "top-stories").where("DATE(updated_at) = DATE('today')").order("sort_order ASC")
+    where(tag: "top-stories").order("sort_order ASC")
   end
 
   def image_url
