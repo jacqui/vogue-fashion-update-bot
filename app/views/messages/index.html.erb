@@ -2,14 +2,16 @@
   <div class="row">
 
     <div class="page-header">
-      <h1>Received Messages</h1>
+      <h1>Received Messages <small><%= Message.count %></small></h1>
     </div>
+
+  <%= paginate @messages %>
 
 <table class="table">
   <thead>
     <tr>
       <th>ID</th>
-      <th>Sender ID</th>
+      <th>Name</th>
       <th>Text</th>
     </tr>
   </thead>
@@ -18,12 +20,13 @@
     <% @messages.each do |message| %>
       <tr>
         <td><%= link_to message.id, message %></td>
-        <td><%= message.senderid %></td>
+        <td><%= message.user.name %></td>
         <td><%= message.text %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
+  <%= paginate @messages %>
 </div>
 </div>

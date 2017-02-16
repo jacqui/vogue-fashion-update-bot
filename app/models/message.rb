@@ -1,4 +1,6 @@
 class Message < ApplicationRecord
+  belongs_to :user, foreign_key: :fbid
+
   def self.log_it(received_message)
     mid = received_message.messaging['message']['mid'] rescue nil
     sid = received_message.messaging['sender']['id'] rescue nil

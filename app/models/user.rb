@@ -3,6 +3,11 @@ class User < ApplicationRecord
   has_many :subscriptions
   has_many :brands, -> { distinct }, through: :subscriptions
   has_and_belongs_to_many :broadcasts
+  has_many :messages, foreign_key: :fbid
+
+  def name
+    [first_name, last_name].join(' ')
+  end
 
   def send_top_stories(quantity = 4)
     top_stories = Article.top_stories.limit(quantity)
