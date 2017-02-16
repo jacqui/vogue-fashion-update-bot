@@ -19,7 +19,6 @@ if Rails.env.production?
 
 
       @conversation = user.conversation
-      puts "Convo: #{@conversation.id}"
 
       replyMessageContents = nil
       sentMessageText = nil
@@ -35,9 +34,7 @@ if Rails.env.production?
 
         multipleTexts = @question.text.split(/\r\n/)
         if multipleTexts.size > 1
-          puts "Multiple Message Question"
           sentMessageText = multipleTexts.pop # set it to the last message text
-          puts "Sending '#{sentMessageText}' last"
           multipleTexts.each do |question_text|
             if question_text != sentMessageText
               message.reply(text: question_text)
@@ -113,7 +110,6 @@ if Rails.env.production?
         replyMessageContents = { text: sentMessageText }
       else
         if brand = Brand.where("title ilike ?", message.text.downcase).first
-          puts "Found matching brand: #{brand.id} - #{brand.title}"
           # TODO: add a followup question
           brand_question = Question.where(category: "designers").first
           if brand_question && brand_question.possible_answers.any?
@@ -164,7 +160,7 @@ if Rails.env.production?
           sent_message.update!(text: sentMessageText, sent_at: Time.now)
         end
       rescue => e
-        puts e
+        puts "Failed replying to message #{message.inspect} because: #{e}"
       end
     end
   end
@@ -234,7 +230,6 @@ if Rails.env.production?
 
       rescue => e
         puts e
-        puts "failed finding an appropriate_response for answer ##{@answer.id}"
       end
 
       if @answer.category == "runway_shows" && @answer.action == "send_latest_shows"
@@ -246,7 +241,7 @@ if Rails.env.production?
           begin
             user.deliver_message_for(shows, "View the Show")
           rescue => e
-            puts e
+            puts "Failed replying to message #{postback.inspect} because: #{e}"
           end
         else
           sentMessageText = Content.find_by_label("no_latest_shows").body
@@ -263,7 +258,7 @@ if Rails.env.production?
           begin
             user.deliver_message_for(shows, "View the Show")
           rescue => e
-            puts e
+            puts "Failed replying to message #{postback.inspect} because: #{e}"
           end
         end
 
@@ -386,7 +381,6 @@ if Rails.env.production?
       replyMessageContents = { text: sentMessageText }
 
     else
-      puts postback.payload
       sentMessageText = Content.find_by_label("unrecognised").body
       replyMessageContents = { text: sentMessageText }
     end
@@ -399,7 +393,7 @@ if Rails.env.production?
         sent_message.update!(text: sentMessageText, sent_at: Time.now)
       end
     rescue => e
-      puts e
+      puts "Failed replying to message #{postback.inspect} because: #{e}"
     end
     @conversation.update(last_message_sent_at: Time.now)
   end
