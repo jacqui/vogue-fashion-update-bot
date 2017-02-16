@@ -4,6 +4,8 @@ class Article < ApplicationRecord
 
   validates :url, uniqueness: true
 
+  URL_TRACKING_PARAMS = "?utm_campaign=trial&utm_medium=social&utm_source=facebookbot"
+
   after_create :setup_messages
 
   def self.top_stories
@@ -12,6 +14,10 @@ class Article < ApplicationRecord
 
   def image_url
     "https://vg-images.condecdn.net/image/#{image_uid}/crop/500/0.525"
+  end
+
+  def tracked_url
+    url + URL_TRACKING_PARAMS
   end
 
   def setup_messages

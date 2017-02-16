@@ -8,6 +8,8 @@ class Show < ApplicationRecord
   validates :title, uniqueness: true
   validates :uid, uniqueness: true
 
+  URL_TRACKING_PARAMS = "?utm_campaign=trial&utm_medium=social&utm_source=facebookbot"
+
   after_create :send_to_all_users
 
   scope :upcoming, -> { where("date_time > ?", Time.now) }
@@ -70,6 +72,10 @@ class Show < ApplicationRecord
 
   def url
     "http://vogue.co.uk/shows/uid/#{uid}"
+  end
+  
+  def tracked_url
+    url + URL_TRACKING_PARAMS
   end
 
   def image_url
