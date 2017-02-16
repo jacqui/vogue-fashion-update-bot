@@ -20,10 +20,10 @@
   <tbody>
     <% @brands.each do |brand| %>
       <tr>
-        <td><%= link_to brand.title, brand %></td>
+        <td><%= link_to brand.title, edit_brand_path(brand) %></td>
         <td><%= brand.shows.count %></td>
         <td><%= brand.users.count %></td>
-        <td><%= link_to 'Edit', edit_brand_path(brand) %></td>
+        <td><%= link_to 'Destroy', brand, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
