@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170216140301) do
+ActiveRecord::Schema.define(version: 20170217104604) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -186,16 +186,17 @@ ActiveRecord::Schema.define(version: 20170216140301) do
 
   create_table "users", force: :cascade do |t|
     t.string   "fbid"
-    t.datetime "created_at",                               null: false
-    t.datetime "updated_at",                               null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
     t.datetime "last_message_sent_at"
     t.string   "first_name"
     t.string   "last_name"
     t.string   "gender"
     t.string   "locale"
     t.string   "timezone"
-    t.text     "shows_subscription"
-    t.boolean  "top_stories_subscription", default: false
+    t.boolean  "subscribe_top_stories", default: false
+    t.boolean  "subscribe_all_shows",   default: false
+    t.boolean  "subscribe_major_shows", default: false
   end
 
   add_foreign_key "articles", "brands"

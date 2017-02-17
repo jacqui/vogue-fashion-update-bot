@@ -1,6 +1,9 @@
 class PossibleAnswer < ApplicationRecord
   belongs_to :brand, optional: true
+
   belongs_to :question
+  belongs_to :next_question, class_name: "Question", optional: true
+
   has_one :response
   accepts_nested_attributes_for :response, reject_if: lambda {|attributes| attributes['text'].blank?}
 

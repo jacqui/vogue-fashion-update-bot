@@ -16,63 +16,25 @@ class User < ApplicationRecord
     end
   end
 
-  def subscribed_to_shows?
-    !shows_subscription.blank?
+  def follow_designer(brand)
+    subscriptions.create!(user: self, brand: brand, signed_up_at: Time.now, sent_at: Time.now)
   end
 
-  def all_shows?
-    !shows_subscription.blank? && shows_subscription == "All"
-  end
-
-  def brands_for_shows
-    if subscribed_to_shows? && !all_shows?
-      brand_ids = shows_subscription.split('||')
-      Brand.find(brand_ids)
-    elsif all_shows?
-      Brand.all
-    else
-      []
-    end
-  end
-
-  def add_show_subscription(brand)
-    @my_brands = brands_for_shows
-    @my_brands << brand
-    my_brand_string = @my_brands.uniq.map(&:id).join('||')
-    update(shows_subscription: my_brand_string)
-    save!
-  end
-
-  def designers_following_text
-    text = ""
-    if subscriptions.any?
-      text += Content.find_by_label("following_list").body
-      subscriptions.each do |subscription|
-        text += "\n#{subscription.brand.title}"
-        # if subscription.brand.shows.any?
-        #   text += " - #{subscription.brand.shows.first.title}"
-        # end
-      end
-    else
-      text += Content.find_by_label("following_none").body
-    end
-    text
-  end
-
-  def deliver_message_for(articles, button_text)
-    puts "Delivering message for user #{id}: #{articles.size}"
-    elements = articles.map do |article|
+  def deliver_message_for(items)
+    puts "Delivering message for user #{id}: #{items.size}"
+    elements = items.map do |item|
+      button_text = item.is_a?(Article) ? "View the Article" : "View the Show"
       {
-        title: article.title,
-        image_url: article.image_url,
+        title: item.title,
+        image_url: item.image_url,
         default_action: {
           type: "web_url",
-          url: article.url
+          url: item.url
         },
         buttons:[
           {
             type: "web_url",
-            url: article.url,
+            url: item.url,
             title: button_text
           }
         ]      

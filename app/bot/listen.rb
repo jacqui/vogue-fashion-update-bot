@@ -29,6 +29,44 @@ if Rails.env.production?
 
       case message.text
       when /start/i
+        # find the starting question
+        @question = Question.starting
+        sentMessageText = @question.text
+
+        # if there are new lines, send as separate messages
+        multipleTexts = sentMessageText.split(/\r\n/)
+        if multipleTexts.size > 1
+          sentMessageText = multipleTexts.pop
+          multipleTexts.each do |question_text|
+            if question_text != sentMessageText
+              message.reply(text: question_text)
+            end
+          end
+        end
+
+        # send the last part of a multi line question OR the single line question
+        message.reply(text: question_text)
+
+        # send the top stories
+        user.send_top_stories(4)
+
+        if @question.response && @question.response.text.blank? && @question.response.next_question.present?
+          next_question = @question.response.next_question
+          sentMessageText = next_question.text
+          buttons = next_question.possible_answers.map do |pa|
+            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+          end
+          replyMessageContents = {
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'button',
+                text: sentMessageText,
+                buttons: buttons
+              }
+            }
+          }
+        end
         @question = Question.starting
         sentMessageText = @question.text
 
@@ -45,19 +83,16 @@ if Rails.env.production?
         buttons = @question.possible_answers.map do |pa|
           { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
         end
-        replyMessageContents = { attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'button',
-            text: sentMessageText,
-            buttons: buttons
+        replyMessageContents = {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text: sentMessageText,
+              buttons: buttons
+            }
           }
         }
-        }
-
-      when /designers|settings/i
-        sentMessageText = user.designers_following_text
-        replyMessageContents = { text: sentMessageText }
 
       when /british vogue|vogue/i
         sentMessageText = "vogue.co.uk"
@@ -76,20 +111,7 @@ if Rails.env.production?
           }
         }
 
-      when /upcoming shows|upcoming/i
-        if Show.upcoming.any?
-          sentMessageText = Content.find_by_label("upcoming_shows").body
-          next_three = Show.upcoming.order("date_time ASC").limit(3)
-          sentMessageText += next_three.map do |show|
-            "#{show.title} at #{show.date_time.to_formatted_s(:long_ordinal)}"
-          end.join(', ')
-          replyMessageContents = { text: sentMessageText }
-        else
-          sentMessageText = Content.find_by_label("no_upcoming_shows").body
-          replyMessageContents = { text: sentMessageText }
-        end
-
-      when /our picks|highlights|best/i
+      when /our picks|highlights|major|picks/i
         shows = Show.where(major: true).order("date_time DESC").limit(4)
         if shows.any?
           sentMessageText = Content.find_by_label("our_picks").body
@@ -100,42 +122,36 @@ if Rails.env.production?
 
       when /top stories|news|stories|top story|latest stories/i
         # subscribe to top stories
-        user.top_stories_subscription = true
-        user.save
-
         user.send_top_stories(4)
+        @question = Question.where(category: "top_stories", type: "yes_no").first
+        sentMessageText = @question.text
+        buttons = @question.possible_answers.map do |pa|
+          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+        end
+        replyMessageContents = {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text: sentMessageText,
+              buttons: buttons
+            }
+          }
+        }
 
       when /help/i
         sentMessageText = Content.find_by_label("help").body
         replyMessageContents = { text: sentMessageText }
+
+        # default to looking up a brand
       else
+        # Send both shows and articles
         if brand = Brand.where("title ilike ?", message.text.downcase).first
-          # TODO: add a followup question
-          brand_question = Question.where(category: "designers").first
-          if brand_question && brand_question.possible_answers.any?
-            buttons = brand_question.possible_answers.map do |pa|
-              { type: 'postback', title: pa.value, payload: "brand:#{brand.id}:answer:#{pa.id}" }
-            end
-            sentMessageText = brand_question.text
-            replyMessageContents = {
-              attachment: {
-                type: 'template',
-                payload: {
-                  template_type: 'button',
-                  text: sentMessageText,
-                  buttons: buttons
-                }
-              }
-            }
-
-            # Failed finding possible set answers for the question about brands
-          elsif brand_question
-            sentMessageText = brand_question.text
-            replyMessageContents = { text: brand_question.text }
-
-            # Failed finding the brand question at all, fallback to content
-          else
-            sentMessageText = Content.find_by_label("brand_question").body
+          shows_and_articles = brand.latest_content
+          begin
+            user.deliver_message_for(shows_and_articles)
+          rescue => e
+            puts "Failed replying to message because: #{e}"
           end
 
           # Failed finding a match for the brand entered
@@ -144,23 +160,12 @@ if Rails.env.production?
           sentMessageText = Content.find_by_label("unrecognised").body
           begin
             replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
+            message.reply(replyMessageContents)
+            sent_message.update!(text: sentMessageText, sent_at: Time.now)
           rescue => e
             puts e
           end
         end
-      end
-
-      begin
-        if shows.any?
-          user.deliver_message_for(shows, "View the Show")
-        elsif articles.any?
-          user.deliver_message_for(articles, "View the Article")
-        else
-          message.reply(replyMessageContents)
-          sent_message.update!(text: sentMessageText, sent_at: Time.now)
-        end
-      rescue => e
-        puts "Failed replying to message #{message.inspect} because: #{e}"
       end
     end
   end
@@ -182,46 +187,6 @@ if Rails.env.production?
     articles = []
 
     case postback.payload
-
-    when /^brand:/
-      # parse the payload for brand and answer id
-      brand_id = postback.payload.split(":")[1]
-      answer_id = postback.payload.split(":").last
-      brand = Brand.find(brand_id)
-      answer = PossibleAnswer.find(answer_id)
-
-      if brand && answer
-        puts "found brand: #{brand.title}"
-        puts "found answer: #{answer.action} #{answer.id}"
-
-        if answer.action == "send_show_info"
-          # find show information and send it
-          shows = brand.shows.order("date_time DESC").limit(4)
-          if !shows.any?
-            sentMessageText = Content.find_by_label("no_shows_for_brand").body
-            replyMessageContents = { text: sentMessageText }
-          else
-            begin
-              user.deliver_message_for(shows, "View the Show")
-            rescue => e
-              puts "Failed replying to message #{postback.inspect} because: #{e}"
-            end
-          end
-        end
-
-        if answer.action == "send_latest_news"
-          articles = brand.articles.order("created_at DESC").limit(4)
-          if !articles.any?
-            sentMessageText = Content.find_by_label("no_shows_for_brand").body
-            replyMessageContents = { text: sentMessageText }
-          end
-        end
-
-      else
-        sentMessageText = Content.find_by_label("unrecognised").body
-        replyMessageContents = { text: sentMessageText }
-      end
-
     when /^answer:/
       # parse the payload for answer id
       answer_id = postback.payload.split(":").last
@@ -233,19 +198,17 @@ if Rails.env.production?
         appropriate_response = @answer.appropriate_response
         sentMessageText = appropriate_response.text
         replyMessageContents = { text: sentMessageText }
-
       rescue => e
         puts e
       end
 
-      if @answer.category == "runway_shows" && @answer.action == "send_latest_shows"
-        # respond with the most recent shows
-        puts "*** SEND LATEST SHOWS ***"
+      # "All Shows"
+      if @answer.action == "send_latest_shows"
+        user.update!(subscribe_all_shows: true)
         if Show.past.any?
-          sentMessageText = Content.find_by_label("latest_shows").body
-          shows = Show.past.order("date_time DESC").limit(3)
+          shows = Show.past.order("date_time DESC").limit(4)
           begin
-            user.deliver_message_for(shows, "View the Show")
+            user.deliver_message_for(shows)
           rescue => e
             puts "Failed replying to message #{postback.inspect} because: #{e}"
           end
@@ -254,45 +217,153 @@ if Rails.env.production?
           replyMessageContents = { text: sentMessageText }
         end
 
-      elsif @answer.category == "runway_shows" && @answer.action == "send_vogue_picks_shows"
+      elsif @answer.action == "send_major_shows"
         # respond with vogue picks of the shows
+        user.update!(subscribe_major_shows: true)
         shows = Show.where(major: true).order("date_time DESC").limit(4)
         if !shows.any?
-          sentMessageText = Content.find_by_label("no_upcoming_shows").body
+          sentMessageText = Content.find_by_label("no_latest_shows").body
           replyMessageContents = { text: sentMessageText }
         else
           begin
-            user.deliver_message_for(shows, "View the Show")
+            user.deliver_message_for(shows)
           rescue => e
             puts "Failed replying to message #{postback.inspect} because: #{e}"
           end
         end
 
-      elsif @answer.question.category == "top_stories" && @answer.action == "subscribe_to_top_stories"
-        # subscribe to top stories
-        user.top_stories_subscription = true
-        user.save
+      elsif @answer.action == "follow_designer" && @answer.brand.present?
+        if brand = Brand.where("title ilike ?", message.text.downcase).first
+          shows_and_articles = @answer.brand.latest_content
+          begin
+            user.deliver_message_for(shows_and_articles)
+          rescue => e
+            puts "Failed replying to message because: #{e}"
+          end
+        else
+          puts "Failed finding a brand to follow on this action: #{@answer.id} #{@answer.value}"
+        end
 
-        user.send_top_stories(4)
+      elsif @answer.action == "send_help_text"
+        sentMessageText = Content.find_by_label("help").body
+        multipleTexts = sentMessageText.split(/\r\n/)
+        if multipleTexts.size > 1
+          sentMessageText = multipleTexts.pop
+          multipleTexts.each do |question_text|
+            if question_text != sentMessageText
+              postback.reply(text: question_text)
+            end
+          end
+        end
+        replyMessageContents = { text: sentMessageText }
+
+      elsif @answer.action == "subscribe_to_top_stories"
+        # subscribe to top stories
+        user.update!(subscribe_top_stories: true)
+        sentMessageText = @answer.response.text
+        replyMessageContents = { text: sentMessageText }
+        postback.reply(replyMessageContents)
+
+        # pause
+
+        if @answer.response.next_question.present?
+          @next_question = @answer.response.next_question
+          if @next_question.possible_answers.any?
+            buttons = @next_question.possible_answers.map do |pa|
+              { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+            end
+            sentMessageText = @next_question.text
+            replyMessageContents = {
+              attachment: {
+                type: 'template',
+                payload: {
+                  template_type: 'button',
+                  text: sentMessageText,
+                  buttons: buttons
+                }
+              }
+            }
+          elsif @next_question
+            sentMessageText = @next_question.text
+            replyMessageContents = { text: sentMessageText }
+          end
+        end
+
+      elsif @answer.action == "ask_next_question" && @answer.next_question.present?
+        puts "Skipping to next question #{@answer.next_question.sort_order} #{@answer.next_question.text}"
+        @next_question = @answer.next_question
+
+        if @next_question.possible_answers.any?
+          buttons = @next_question.possible_answers.map do |pa|
+            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+          end
+          sentMessageText = @next_question.text
+          replyMessageContents = {
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'button',
+                text: sentMessageText,
+                buttons: buttons
+              }
+            }
+          }
+        else
+          sentMessageText = @next_question.text
+          replyMessageContents = { text: sentMessageText }
+        end
       end
 
-      @next_question = if @answer.action == "skip_to_next_question" && @answer.next_question_id.present?
-                         puts "Skipping to next question #{@answer.next_question_id}"
-                         Question.find(@answer.next_question_id)
-                       elsif appropriate_response.next_question.present?
-                         puts " Found the next question for response ##{appropriate_response.id}: #{appropriate_response.next_question.id}"
-                         appropriate_response.next_question
-                       else
-                         puts " Using the next question for answer ##{@answer.id}: #{@answer.question.next.id}"
-                         # lookup the next question
-                         @answer.question.next
-                       end
+    when /follow_designer/i
+      @question = Question.where(category: "designers").first
+        if @question.possible_answers.any?
+          buttons = @question.possible_answers.map do |pa|
+            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+          end
+          sentMessageText = @question.text
+          replyMessageContents = {
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'button',
+                text: sentMessageText,
+                buttons: buttons
+              }
+            }
+          }
+        else
+          sentMessageText = @question.text
+          replyMessageContents = { text: sentMessageText }
+        end
 
-      if @next_question && @next_question.possible_answers.any?
-        buttons = @next_question.possible_answers.map do |pa|
+    when 'get_started'
+      # find the starting question
+      @question = Question.starting
+      sentMessageText = @question.text
+
+      # if there are new lines, send as separate messages
+      multipleTexts = sentMessageText.split(/\r\n/)
+      if multipleTexts.size > 1
+        sentMessageText = multipleTexts.pop
+        multipleTexts.each do |question_text|
+          if question_text != sentMessageText
+            postback.reply(text: question_text)
+          end
+        end
+      end
+
+      # send the last part of a multi line question OR the single line question
+      postback.reply(text: question_text)
+
+      # send the top stories
+      user.send_top_stories(4)
+
+      if @question.response && @question.response.text.blank? && @question.response.next_question.present?
+        next_question = @question.response.next_question
+        sentMessageText = next_question.text
+        buttons = next_question.possible_answers.map do |pa|
           { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
         end
-        sentMessageText = @next_question.text
         replyMessageContents = {
           attachment: {
             type: 'template',
@@ -303,27 +374,13 @@ if Rails.env.production?
             }
           }
         }
-      elsif @next_question
-        sentMessageText = @next_question.text
-        replyMessageContents = { text: sentMessageText }
       end
 
-    when /my-designers|settings|designers|prefs|preferences|follow_a_designer/i
-      sentMessageText = user.designers_following_text
-      replyMessageContents = { text: sentMessageText }
+    when /top_stories/i
+      user.send_top_stories(4)
 
-    when 'get_started'
-      @question = Question.starting
+      @question = Question.where(category: "top_stories", type: "yes_no").first
       sentMessageText = @question.text
-      multipleTexts = sentMessageText.split(/\r\n/)
-      if multipleTexts.size > 1
-        sentMessageText = multipleTexts.pop
-        multipleTexts.each do |question_text|
-          if question_text != sentMessageText
-            postback.reply(text: question_text)
-          end
-        end
-      end
       buttons = @question.possible_answers.map do |pa|
         { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
       end
@@ -338,11 +395,7 @@ if Rails.env.production?
         }
       }
 
-    when /top_stories/i
-      user.top_stories_subscription = true
-      user.save!
-      user.send_top_stories(4)
-
+    # Send Major Shows
     when /OUR_PICKS|highlights/i
       shows = Show.where(major: true).order("date_time DESC").limit(4)
       if shows.any?

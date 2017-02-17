@@ -12,4 +12,11 @@ class Brand < ApplicationRecord
     order("title ASC")
   end
 
+  def latest_content
+    latest_shows = shows.order("date_time DESC").limit(4)
+    puts " (brand ##{id}) shows: #{latest_shows.size}"
+    latest_articles = articles.order("published_at DESC").limit(4)
+    puts " (brand ##{id}) articles: #{latest_articles.size}"
+    return latest_shows + latest_articles
+  end
 end

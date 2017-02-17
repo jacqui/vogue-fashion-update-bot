@@ -1,15 +1,14 @@
 class Response < ApplicationRecord
   # this can belong to a question or a possible answer
   belongs_to :possible_answer, optional: true
-  belongs_to :question
+  belongs_to :question, optional: true
 
   # some responses trigger a followup question
   belongs_to :next_question, class_name: "Question", optional: true
 
-  validates :question, presence: true
   validates :category, presence: true
 
-  validates :category, inclusion: { in: %w(text articles_by_tag top_stories runway_shows newsletter),
+  validates :category, inclusion: { in: %w(top_stories designers),
     message: "%{value} is not a valid category" }
   
 end
