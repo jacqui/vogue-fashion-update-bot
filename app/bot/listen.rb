@@ -262,7 +262,7 @@ if Rails.env.production?
 
         # pause
 
-        if @answer.response.next_question.present?
+        if @answer.response && @answer.response.next_question.present?
           @next_question = @answer.response.next_question
           sentMessageText = @next_question.text
           if @next_question.possible_answers.any?
