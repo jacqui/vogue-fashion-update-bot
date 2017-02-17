@@ -46,6 +46,9 @@
           <li class="nav-item">
               <%= link_to "Sent", sent_messages_path, class: "nav-link" %>
           </li>
+          <li class="nav-item">
+              <%= link_to "Unrecognised Brands", messages_path(unmatched: 1), class: "nav-link" %>
+          </li>
         </ul>
       </div>
     </nav>

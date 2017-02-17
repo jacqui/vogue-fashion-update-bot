@@ -5,7 +5,11 @@ class MessagesController < ApplicationController
   # GET /messages.json
   def index
     page = params[:page] ? params[:page] : 1
-    @messages = Message.order("updated_at DESC").page(page)
+    @messages = if params[:unmatched]
+                  Message.where(unmatched_brand: params[:unmatched]).order("updated_at DESC").page(page)
+                else
+                  Message.order("updated_at DESC").page(page)
+                end
   end
 
   # GET /messages/1

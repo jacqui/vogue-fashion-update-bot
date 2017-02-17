@@ -2,33 +2,37 @@
   <div class="row">
 
     <div class="page-header">
-      <h1>Received Messages <small>(<%= Message.count %>)</small></h1>
+      <% if params[:unmatched] %>
+        <h1>Unrecognised Brands <small>(<%= Message.count %>)</small></h1>
+      <% else %>
+        <h1>Received Messages <small>(<%= Message.count %>)</small></h1>
+      <% end %>
     </div>
 
-  <%= paginate @messages %>
+    <%= paginate @messages %>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Unmatched Brand?</th>
-      <th>User</th>
-      <th>Text</th>
-    </tr>
-  </thead>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Unrecognised Brand?</th>
+          <th>User</th>
+          <th>Text</th>
+        </tr>
+      </thead>
 
-  <tbody>
-    <% @messages.each do |message| %>
-      <tr>
-        <td><%= link_to message.id, message %></td>
-        <td><%= message.unmatched_brand %></td>
-        <td><%= message.user.present? ? message.user.name : message.senderid %></td>
-        <td><%= message.text %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+      <tbody>
+        <% @messages.each do |message| %>
+          <tr>
+            <td><%= link_to message.id, message %></td>
+            <td><%= message.unmatched_brand %></td>
+            <td><%= message.user.present? ? message.user.name : message.senderid %></td>
+            <td><%= message.text %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
 
-  <%= paginate @messages %>
-</div>
+    <%= paginate @messages %>
+  </div>
 </div>
