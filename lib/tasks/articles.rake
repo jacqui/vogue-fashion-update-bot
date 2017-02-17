@@ -138,7 +138,7 @@ namespace :articles do
       if sent_message.sent_at.blank?
         sent_message.update sent_at: Time.now
       end
-      notification.user.deliver_message_for([notification.article], "View the Article")
+      notification.user.deliver_message_for([notification.article])
       notification.update(sent: true, sent_at: Time.now)
     end
   end
