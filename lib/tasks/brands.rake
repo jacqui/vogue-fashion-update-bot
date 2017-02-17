@@ -1,5 +1,5 @@
 namespace :brands do
-  desc "TODO"
+  desc "populate the database with brands"
   task populate: :environment do
     require "http"
     require "addressable/uri"
