@@ -10,7 +10,7 @@ class Show < ApplicationRecord
 
   URL_TRACKING_PARAMS = "?utm_campaign=trial&utm_medium=social&utm_source=facebookbot"
 
-  after_create :send_to_all_users
+  # after_create :send_to_all_users
 
   scope :upcoming, -> { where("date_time > ?", Time.now) }
   scope :past, -> { where("date_time < ?", Time.now) }

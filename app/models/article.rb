@@ -6,7 +6,7 @@ class Article < ApplicationRecord
 
   URL_TRACKING_PARAMS = "?utm_campaign=trial&utm_medium=social&utm_source=facebookbot"
 
-  after_create :setup_messages
+  # after_create :setup_messages
 
   def self.top_stories
     where(tag: "top-stories").order("sort_order ASC")
