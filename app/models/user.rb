@@ -12,7 +12,7 @@ class User < ApplicationRecord
   def send_top_stories(quantity = 4)
     top_stories = Article.top_stories.limit(quantity)
     if top_stories.any?
-      self.deliver_message_for(top_stories, "View the Article")
+      self.deliver_message_for(top_stories)
     end
   end
 

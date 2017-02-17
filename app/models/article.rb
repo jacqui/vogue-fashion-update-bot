@@ -69,7 +69,7 @@ class Article < ApplicationRecord
           end
 
           begin
-            user.deliver_message_for([self], "View the Article")
+            user.deliver_message_for([self])
           rescue => e
             puts e
           end

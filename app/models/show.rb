@@ -134,7 +134,7 @@ class Show < ApplicationRecord
       end
 
       begin
-        user.deliver_message_for([self], "View the Show")
+        user.deliver_message_for([self])
       rescue => e
         puts e
       end

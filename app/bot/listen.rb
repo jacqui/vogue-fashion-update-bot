@@ -233,15 +233,11 @@ if Rails.env.production?
         end
 
       elsif @answer.action == "follow_designer" && @answer.brand.present?
-        if brand = Brand.where("title ilike ?", message.text.downcase).first
-          shows_and_articles = @answer.brand.latest_content
-          begin
-            user.deliver_message_for(shows_and_articles)
-          rescue => e
-            puts "Failed replying to message because: #{e}"
-          end
-        else
-          puts "Failed finding a brand to follow on this action: #{@answer.id} #{@answer.value}"
+        shows_and_articles = @answer.brand.latest_content
+        begin
+          user.deliver_message_for(shows_and_articles)
+        rescue => e
+          puts "Failed replying to message because: #{e}"
         end
 
       elsif @answer.action == "send_help_text"
@@ -401,7 +397,7 @@ if Rails.env.production?
       if shows.any?
         sentMessageText = Content.find_by_label("our_picks").body
           begin
-            user.deliver_message_for(shows, "View the Show")
+            user.deliver_message_for(shows)
           rescue => e
             puts "Failed replying to message #{postback.inspect} because: #{e}"
           end
@@ -415,7 +411,7 @@ if Rails.env.production?
         sentMessageText = Content.find_by_label("latest_shows").body
         shows = Show.past.order("date_time DESC").limit(3)
         begin
-          user.deliver_message_for(shows, "View the Show")
+          user.deliver_message_for(shows)
         rescue => e
           puts "Failed replying to message #{postback.inspect} because: #{e}"
         end
@@ -456,7 +452,7 @@ if Rails.env.production?
 
     begin
       if articles.any?
-        user.deliver_message_for(articles, "View the Article")
+        user.deliver_message_for(articles)
       else
         postback.reply(replyMessageContents)
         sent_message.update!(text: sentMessageText, sent_at: Time.now)
