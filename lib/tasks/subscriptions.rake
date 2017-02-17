@@ -11,7 +11,8 @@ namespace :subscriptions do
       puts " * #{sub.id} for user #{sub.user.id} #{sub.user.name} - #{sub.brand.id} #{sub.brand.title}"
       content_to_send = sub.find_content_to_send
 
-      if last_push_notification = SentMessage.where(user_id: sub.user.id, push_notification: true).where("sent_at IS NOT NULL").exists?
+      last_push_notification = SentMessage.where(user_id: sub.user.id, push_notification: true).where("sent_at IS NOT NULL").order("sent_at DESC").first
+      if last_push_notification.exists?
         puts " * last time we pushed a notification: #{last_push_notification.sent_at}"
         if last_push_notification.sent_at > 1.minute.ago
           puts " * holding off on sending, too recent"
