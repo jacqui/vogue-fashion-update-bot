@@ -65,6 +65,7 @@ if Rails.env.production?
               }
             }
           }
+          message.reply(replyMessageContents)
         else
           puts "Failed finding response for question id##{@question.id}"
         end
@@ -85,6 +86,7 @@ if Rails.env.production?
             }
           }
         }
+        message.reply(replyMessageContents)
 
       when /our picks|highlights|major|picks/i
         shows = Show.past.where(major: true).limit(4)
@@ -94,6 +96,9 @@ if Rails.env.production?
         else
           sentMessageText = Content.find_by_label("no_upcoming_shows").body
         end
+        replyMessageContents = { text: sentMessageText }
+        message.reply(replyMessageContents)
+        sent_message.update!(text: sentMessageText, sent_at: Time.now)
 
       when /top stories|news|stories|top story|latest stories/i
         # subscribe to top stories
@@ -113,10 +118,14 @@ if Rails.env.production?
             }
           }
         }
+        message.reply(replyMessageContents)
+        sent_message.update!(text: sentMessageText, sent_at: Time.now)
 
       when /help/i
         sentMessageText = Content.find_by_label("help").body
         replyMessageContents = { text: sentMessageText }
+        message.reply(replyMessageContents)
+        sent_message.update!(text: sentMessageText, sent_at: Time.now)
 
         # default to looking up a brand
       else
@@ -235,6 +244,7 @@ if Rails.env.production?
         replyMessageContents = { text: sentMessageText }
         postback.reply(replyMessageContents)
 
+        @next_question = @answer.next_question
         # pause
 
         if @answer.response && @answer.response.next_question.present?
@@ -367,17 +377,17 @@ if Rails.env.production?
 
     # Send Major Shows
     when /OUR_PICKS|highlights/i
+      user.update!(subscribe_major_shows: true)
       shows = Show.past.where(major: true).limit(4)
-      if shows.any?
-        sentMessageText = Content.find_by_label("our_picks").body
-          begin
-            user.deliver_message_for(shows)
-          rescue => e
-            puts "Failed replying to message #{postback.inspect} because: #{e}"
-          end
-      else
-        sentMessageText = Content.find_by_label("no_upcoming_shows").body
+      if !shows.any?
+        sentMessageText = Content.find_by_label("no_latest_shows").body
         replyMessageContents = { text: sentMessageText }
+      else
+        begin
+          user.deliver_message_for(shows)
+        rescue => e
+          puts "Failed replying to message #{postback.inspect} because: #{e}"
+        end
       end
 
     when /latest shows|latest runway|runway|catwalk|latest/i
