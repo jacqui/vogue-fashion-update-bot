@@ -43,6 +43,7 @@ if Rails.env.production?
             }
           }
         }
+        message.reply(replyMessageContents)
         if user && (user.subscriptions.any? || user.subscribe_to_top_stories || user.subscribe_all_shows || user.subscribe_major_shows)
           puts "* user #{user.id} has some subscriptions"
         else
