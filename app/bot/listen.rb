@@ -54,12 +54,18 @@ if Rails.env.production?
           next_question = @question.response.next_question
           sentMessageText = next_question.text
           buttons = next_question.possible_answers.map do |pa|
-            { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
-          end
-          replyMessageContents = {
+          { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+        end
+        replyMessageContents = {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
               text: sentMessageText,
-              quick_replies: buttons
+              buttons: buttons
             }
+          }
+        }
         end
         @question = Question.starting
         sentMessageText = @question.text
@@ -75,11 +81,17 @@ if Rails.env.production?
         end
 
         buttons = @question.possible_answers.map do |pa|
-          { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+          { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
-            text: sentMessageText,
-            quick_replies: buttons
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text: sentMessageText,
+              buttons: buttons
+            }
+          }
         }
 
       when /british vogue|vogue/i
@@ -255,12 +267,18 @@ if Rails.env.production?
           sentMessageText = @next_question.text
           if @next_question.possible_answers.any?
             buttons = @next_question.possible_answers.map do |pa|
-              { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+              { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
             end
             replyMessageContents = {
-                text: sentMessageText,
-                quick_replies: buttons
+              attachment: {
+                type: 'template',
+                payload: {
+                  template_type: 'button',
+                  text: sentMessageText,
+                  buttons: buttons
+                }
               }
+            }
 
           elsif @next_question
             sentMessageText = @next_question.text
@@ -271,18 +289,22 @@ if Rails.env.production?
       elsif @answer.action == "ask_next_question" && @answer.next_question.present?
         puts "Skipping to next question #{@answer.next_question.sort_order} #{@answer.next_question.text}"
         @next_question = @answer.next_question
-
+        sentMessageText = @next_question.text
         if @next_question.possible_answers.any?
-          
           buttons = @next_question.possible_answers.map do |pa|
-            { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+            { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
           end
           replyMessageContents = {
-              text: sentMessageText,
-              quick_replies: buttons
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'button',
+                text: sentMessageText,
+                buttons: buttons
+              }
+            }
           }
         else
-          sentMessageText = @next_question.text
           replyMessageContents = { text: sentMessageText }
         end
       end
@@ -292,11 +314,17 @@ if Rails.env.production?
       sentMessageText = @question.text
       if @question.possible_answers.any?
         buttons = @question.possible_answers.map do |pa|
-          { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+          { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
-            text: sentMessageText,
-            quick_replies: buttons
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text: sentMessageText,
+              buttons: buttons
+            }
+          }
         }
       else
         sentMessageText = @question.text
