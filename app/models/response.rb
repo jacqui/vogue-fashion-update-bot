@@ -6,7 +6,6 @@ class Response < ApplicationRecord
   # some responses trigger a followup question
   belongs_to :next_question, class_name: "Question", optional: true
 
-  validates :text, presence: true
   validates :question, presence: true
   validates :category, presence: true
 
