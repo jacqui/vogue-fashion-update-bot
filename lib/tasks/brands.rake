@@ -7,7 +7,12 @@ namespace :brands do
     puts "Brands count: #{Brand.count}"
     brands = brand_paginated_get("tag")
     brands.each do |brand|
-      Brand.create!(title: brand['title'], slug: brand['slug'], uid: brand['uid'])
+      if b = Brand.where(title: brand['title']).first
+        puts "Brand #{b.title} already exists."
+      else
+        puts "Creating brand #{brand['title']}"
+        Brand.create!(title: brand['title'], slug: brand['slug'], uid: brand['uid'])
+      end
     end
 
     puts "Brands count: #{Brand.count}"
