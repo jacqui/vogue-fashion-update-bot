@@ -57,14 +57,9 @@ if Rails.env.production?
             { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
           end
           replyMessageContents = {
-            recipient:{
-              id: user.fbid
-            },
-            message:{
               text: sentMessageText,
               quick_replies: buttons
             }
-          }
         end
         @question = Question.starting
         sentMessageText = @question.text
@@ -83,13 +78,8 @@ if Rails.env.production?
           { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
-          recipient:{
-            id: user.fbid
-          },
-          message:{
             text: sentMessageText,
             quick_replies: buttons
-          }
         }
 
       when /british vogue|vogue/i
@@ -268,14 +258,9 @@ if Rails.env.production?
               { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
             end
             replyMessageContents = {
-              recipient:{
-                id: user.fbid
-              },
-              message:{
                 text: sentMessageText,
                 quick_replies: buttons
               }
-            }
 
           elsif @next_question
             sentMessageText = @next_question.text
@@ -293,13 +278,8 @@ if Rails.env.production?
             { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
           end
           replyMessageContents = {
-            recipient:{
-              id: user.fbid
-            },
-            message:{
               text: sentMessageText,
               quick_replies: buttons
-            }
           }
         else
           sentMessageText = @next_question.text
@@ -315,13 +295,8 @@ if Rails.env.production?
           { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
-          recipient:{
-            id: user.fbid
-          },
-          message:{
             text: sentMessageText,
             quick_replies: buttons
-          }
         }
       else
         sentMessageText = @question.text
