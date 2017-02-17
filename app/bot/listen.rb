@@ -132,14 +132,15 @@ if Rails.env.production?
       else
         # try to parse comma-delimited brand names
         begin
-          brands = message.text.split(',').map(&:strip)
+          brand_names = message.text.split(',').map(&:strip)
         rescue => e
           puts e
-          brands = [message.text]
+          brand_names = [message.text]
         end
-        brands.each do |brand|
+        missing_brands = []
+        brand_names.each do |brand_name|
           # Send both shows and articles
-          if brand = Brand.where("title ilike ?", message.text.downcase).first
+          if brand = Brand.where("title ilike ?", brand_name).first
             shows_and_articles = brand.latest_content
             begin
               user.deliver_message_for(shows_and_articles)
@@ -159,16 +160,20 @@ if Rails.env.production?
 
             # Failed finding a match for the brand entered
           else
-            puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
-            sentMessageText = Content.find_by_label("unrecognised").body
-            begin
-              @received_message.update(unmatched_brand: true) if @received_message.present?
-              replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
-              message.reply(replyMessageContents)
-              sent_message.update!(text: sentMessageText, sent_at: Time.now)
-            rescue => e
-              puts e
-            end
+            puts "Failed finding a matching brand for the text '#{brand_name}'"
+            missing_brands << brand_name
+          end
+        end
+
+        if missing_brands.any?
+          sentMessageText = Content.find_by_label("unrecognised").body
+          begin
+            @received_message.update(unmatched_brand: true) if @received_message.present?
+            replyMessageContents = { text: "#{sentMessageText} '#{missing_brands.join(', ')}'" }
+            message.reply(replyMessageContents)
+            sent_message.update!(text: sentMessageText, sent_at: Time.now)
+          rescue => e
+            puts e
           end
         end
 
