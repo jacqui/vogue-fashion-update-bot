@@ -41,6 +41,8 @@ namespace :articles do
 
     listData = data['data']['list_items']
 
+    # Clear out previous top stories first
+    Article.where(tag: "top-stories").each {|a| a.destroy }
     tag = "top-stories"
     counter = 0
     listData.each do |itemData|
@@ -48,6 +50,9 @@ namespace :articles do
       list_item = itemData['object']['data'] rescue nil
 
       next if list_item.nil?
+
+      puts itemData.keys.sort
+      puts itemData['priority']
 
       imageUid = if list_item['images'] && list_item['images']['default'] && list_item['images']['default']['uid']
                    list_item['images']['default']['uid']
@@ -63,7 +68,13 @@ namespace :articles do
           puts "updating sort order and display date on article"
           article.update(sort_order: itemData['priority'], display_date: display_date)
         else
+          puts "updating sort order on article: #{itemData['priority']}"
           article.update(sort_order: itemData['priority'])
+          if article.valid?
+            puts "article #{article.id} now has sort_order #{article.sort_order}"
+          else
+            puts "article #{article.id} had errors: #{article.errors.full_messages}"
+          end
         end
 
       elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: display_date, publish_time: list_item['published_at'], tag: tag, image_uid: imageUid, sort_order: itemData['priority'])
