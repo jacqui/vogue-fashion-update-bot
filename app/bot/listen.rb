@@ -44,7 +44,7 @@ if Rails.env.production?
           }
         }
         message.reply(replyMessageContents)
-        if user && (user.subscriptions.any? || user.subscribe_to_top_stories || user.subscribe_all_shows || user.subscribe_major_shows)
+        if user && (user.subscriptions.any? || user.subscribe_top_stories || user.subscribe_all_shows || user.subscribe_major_shows)
           puts "* user #{user.id} has some subscriptions"
         else
           puts "* user #{user.id} has no subscriptions"
@@ -234,8 +234,8 @@ if Rails.env.production?
       yes_or_no = postback.payload.split(":").last
       if yes_or_no == "1"
         user.subscriptions.delete_all
-        user.update(subscribe_major_shows: false, subscribe_all_shows: false, subscribe_to_top_stories: false)
-        puts "* user #{user.id} now subscribed to #{user.subscriptions.size} brands; top stories: #{user.subscribe_to_top_stories}; all shows: #{user.subscribe_all_shows}; major shows: #{user.subscribe_major_shows}"
+        user.update(subscribe_major_shows: false, subscribe_all_shows: false, subscribe_top_stories: false)
+        puts "* user #{user.id} now subscribed to #{user.subscriptions.size} brands; top stories: #{user.subscribe_top_stories}; all shows: #{user.subscribe_all_shows}; major shows: #{user.subscribe_major_shows}"
 
         sentMessageText = Content.find_by_label("unsubscribed_confirmation").body
         replyMessageContents = { text: sentMessageText }
