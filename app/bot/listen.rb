@@ -23,7 +23,7 @@ if Rails.env.production?
       replyMessageContents = nil
       sentMessageText = nil
 
-      Message.log_it(message)
+      @received_message = Message.log_it(message)
 
       case message.text
       when /start/i
@@ -152,6 +152,7 @@ if Rails.env.production?
           puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
           sentMessageText = Content.find_by_label("unrecognised").body
           begin
+            @received_message.update(unmatched_brand: true)
             replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
             message.reply(replyMessageContents)
             sent_message.update!(text: sentMessageText, sent_at: Time.now)
@@ -172,7 +173,7 @@ if Rails.env.production?
     @conversation = user.conversation
     puts "Convo: #{@conversation.id}"
 
-    Message.log_it(postback)
+    @received_message = Message.log_it(postback)
 
     replyMessageContents = nil
     sentMessageText = nil

@@ -14,6 +14,7 @@ class Message < ApplicationRecord
       return msg
     else
       puts received_message.inspect
+      return nil
     end
   end
 end
