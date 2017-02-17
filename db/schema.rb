@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170217150419) do
+ActiveRecord::Schema.define(version: 20170217161222) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -153,8 +153,10 @@ ActiveRecord::Schema.define(version: 20170217150419) do
     t.integer  "show_id"
     t.datetime "sent_at"
     t.text     "text"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.integer  "subscription_id"
+    t.boolean  "push_notification", default: false
   end
 
   create_table "shows", force: :cascade do |t|

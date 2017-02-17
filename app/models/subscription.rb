@@ -1,6 +1,7 @@
 class Subscription < ApplicationRecord
   belongs_to :brand
   belongs_to :user
+  has_many :sent_messages
 
   def self.default_scope
     order("user_id ASC")
@@ -17,7 +18,6 @@ class Subscription < ApplicationRecord
           puts "Already sent this article (#{c.id}) to user #{user.id}"
         else
           puts "New article (#{c.id}) for user #{user.id}"
-          SentMessage.create(article_id: c.id, user_id: user.id, brand_id: brand.id, sent_at: Time.now, text: c.title)
           content_to_send << c
         end
       elsif c.is_a?(Show)
@@ -25,7 +25,6 @@ class Subscription < ApplicationRecord
           puts "Already sent this show (#{c.id}) to user #{user.id}"
         else
           puts "New show (#{c.id}) for user #{user.id}"
-          SentMessage.create(show_id: c.id, user_id: user.id, brand_id: brand.id, sent_at: Time.now, text: c.title)
           content_to_send << c
         end
       end

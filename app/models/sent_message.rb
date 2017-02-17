@@ -3,6 +3,7 @@ class SentMessage < ApplicationRecord
   belongs_to :user
   belongs_to :brand, optional: true
   belongs_to :show, optional: true
+  belongs_to :subscription, optional: true
 
   def reason
     return "Article matched tag" if article.present?
