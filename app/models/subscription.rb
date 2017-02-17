@@ -2,6 +2,10 @@ class Subscription < ApplicationRecord
   belongs_to :brand
   belongs_to :user
 
+  def self.default_scope
+    order("user_id ASC")
+  end
+
   def find_content_to_send
     return [] unless brand.present? && user.present?
 

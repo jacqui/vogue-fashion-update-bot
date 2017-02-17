@@ -10,9 +10,9 @@ every 8.minutes do
   rake "shows:regular"
 end
  
-# every 15.minutes do
-#   rake "articles:subs"
-# end
+every 1.hour do
+  rake "subscriptions:brands"
+end
 
 # every 1.day do
 #   rake "brands:populate"
