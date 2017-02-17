@@ -3,7 +3,7 @@ class User < ApplicationRecord
   has_many :subscriptions
   has_many :brands, -> { distinct }, through: :subscriptions
   has_and_belongs_to_many :broadcasts
-  has_many :messages, foreign_key: :senderid
+  has_many :messages
 
   def name
     [first_name, last_name].join(' ')

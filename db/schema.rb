@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170217104604) do
+ActiveRecord::Schema.define(version: 20170217150419) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,8 +82,10 @@ ActiveRecord::Schema.define(version: 20170217104604) do
     t.text     "text"
     t.text     "attachments"
     t.text     "quick_reply"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.boolean  "unmatched_brand", default: false
+    t.integer  "user_id"
   end
 
   create_table "notifications", force: :cascade do |t|
