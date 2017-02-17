@@ -45,7 +45,7 @@ if Rails.env.production?
         end
 
         # send the last part of a multi line question OR the single line question
-        message.reply(text: question_text)
+        message.reply(text: sentMessageText)
 
         # send the top stories
         user.send_top_stories(4)
