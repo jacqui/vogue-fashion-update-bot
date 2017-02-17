@@ -54,7 +54,7 @@ if Rails.env.production?
           next_question = @question.response.next_question
           sentMessageText = next_question.text
           buttons = next_question.possible_answers.map do |pa|
-          { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
           attachment: {
@@ -81,7 +81,7 @@ if Rails.env.production?
         end
 
         buttons = @question.possible_answers.map do |pa|
-          { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
           attachment: {
@@ -267,7 +267,7 @@ if Rails.env.production?
           sentMessageText = @next_question.text
           if @next_question.possible_answers.any?
             buttons = @next_question.possible_answers.map do |pa|
-              { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+              { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
             end
             replyMessageContents = {
               attachment: {
@@ -292,7 +292,7 @@ if Rails.env.production?
         sentMessageText = @next_question.text
         if @next_question.possible_answers.any?
           buttons = @next_question.possible_answers.map do |pa|
-            { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
           end
           replyMessageContents = {
             attachment: {
@@ -314,7 +314,7 @@ if Rails.env.production?
       sentMessageText = @question.text
       if @question.possible_answers.any?
         buttons = @question.possible_answers.map do |pa|
-          { type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
+          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
           attachment: {
