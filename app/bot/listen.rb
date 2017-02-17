@@ -50,6 +50,7 @@ if Rails.env.production?
 
         if @question.response && @question.response.text.blank? && @question.response.next_question.present?
           next_question = @question.response.next_question
+          puts "Sending next question: #{next_question.sort_order} - #{next_question.text}"
           sentMessageText = next_question.text
           buttons = next_question.possible_answers.map do |pa|
             { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
@@ -64,6 +65,8 @@ if Rails.env.production?
               }
             }
           }
+        else
+          puts "Failed finding response for question id##{@question.id}"
         end
 
       when /british vogue|vogue/i
