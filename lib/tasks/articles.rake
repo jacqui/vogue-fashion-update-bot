@@ -62,7 +62,10 @@ namespace :articles do
         if article.sort_order.nil? && itemData['priority'].present? && article.display_date.nil? && display_date.present?
           puts "updating sort order and display date on article"
           article.update(sort_order: itemData['priority'], display_date: display_date)
+        else
+          article.update(sort_order: itemData['priority'])
         end
+
       elsif article = Article.create(title: list_item['title'], url: articleUrl, display_date: display_date, publish_time: list_item['published_at'], tag: tag, image_uid: imageUid, sort_order: itemData['priority'])
         puts "created article: #{article.id} #{article.title}"
       end
