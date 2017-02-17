@@ -135,6 +135,16 @@ if Rails.env.production?
           shows_and_articles = brand.latest_content
           begin
             user.deliver_message_for(shows_and_articles)
+
+            if existing_sub = user.subscriptions.where(brand: brand).first
+              existing_sub.update(sent_at: Time.now)
+              puts "Updated existing subscription: #{user.id} user + #{brand.id} brand + #{existing_sub.id} sub"
+            elsif new_sub = user.subscriptions.create(brand: brand, signed_up_at: Time.now, sent_at: Time.now)
+              puts "Created new subscription: #{user.id} user + #{brand.id} brand + #{new_sub.id} sub"
+            else
+              puts "Failed subscribing user: #{user.id} user + #{brand.id} brand"
+            end
+
           rescue => e
             puts "Failed replying to message because: #{e}"
           end
