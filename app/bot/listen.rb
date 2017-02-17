@@ -405,7 +405,7 @@ if Rails.env.production?
         replyMessageContents = { text: sentMessageText }
       end
 
-    when /latest shows|latest runway|runway|catwalk/i
+    when /latest shows|latest runway|runway|catwalk|latest/i
       if Show.past.any?
         sentMessageText = Content.find_by_label("latest_shows").body
         shows = Show.past.order("date_time DESC").limit(3)
