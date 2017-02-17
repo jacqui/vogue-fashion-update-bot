@@ -192,15 +192,14 @@ if Rails.env.production?
           sentMessageText = Content.find_by_label("unrecognised").body
           begin
             @received_message.update(unmatched_brand: true) if @received_message.present?
-            replyMessageContents = { text: "#{sentMessageText} '#{missing_brands.join(', ')}'" }
+            replyMessageContents = { text: sentMessageText }
             message.reply(replyMessageContents)
             sent_message.update!(text: sentMessageText, sent_at: Time.now)
           rescue => e
             puts e
           end
-        end
 
-        if question = Question.where(category: "designers").first
+        elsif question = Question.where(category: "designers").first
           if question.response.present?
             sentMessageText = question.response.text + message.text
             replyMessageContents = { text: sentMessageText }
