@@ -138,6 +138,15 @@ if Rails.env.production?
             puts "Failed replying to message because: #{e}"
           end
 
+          if question = Question.where(category: "designers").first
+            if question.response.present?
+              sentMessageText = question.response.text
+              replyMessageContents = { text: sentMessageText }
+              message.reply(replyMessageContents)
+              sent_message.update!(text: sentMessageText, sent_at: Time.now)
+            end
+          end
+
           # Failed finding a match for the brand entered
         else
           puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
