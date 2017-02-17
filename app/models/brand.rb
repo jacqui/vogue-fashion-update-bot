@@ -7,6 +7,7 @@ class Brand < ApplicationRecord
   has_many :articles
 
   validates :slug, uniqueness: true
+  validates :title, uniqueness: true
 
   def self.default_scope
     order("title ASC")
