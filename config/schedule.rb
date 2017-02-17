@@ -22,4 +22,8 @@ every 1.hour do
   rake "articles:top"
 end
 
+every 1.day, :at => "1pm" do
+  rake "subscriptions:top"
+end
+
 # Learn more: http://github.com/javan/whenever

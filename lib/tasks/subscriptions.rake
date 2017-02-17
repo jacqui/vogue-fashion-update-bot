@@ -74,7 +74,7 @@ namespace :subscriptions do
           sm.update(brand: c.brand) if c.brand.present?
         end
         puts " ** Sending #{content_to_send.size} content pieces to user #{user.id}"
-        # user.deliver_message_for(content_to_send)
+        user.deliver_message_for(content_to_send)
       else
         puts " ** No new content to send user ##{user.id}"
       end
