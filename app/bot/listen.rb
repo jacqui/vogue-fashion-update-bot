@@ -27,6 +27,28 @@ if Rails.env.production?
       @received_message.update(user: user) if @received_message.present?
 
       case message.text
+      when /stop|unsubscribe|quit/i
+        sentMessageText = Content.find_by_label("unsubscribe_are_you_sure").body
+        buttons = [
+          { type: 'postback', title: "Yes", payload: "unsubscribe:1" },
+          { type: 'postback', title: "No", payload: "unsubscribe:0" }
+        ]
+        replyMessageContents = {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text: sentMessageText,
+              buttons: buttons
+            }
+          }
+        }
+        if user && (user.subscriptions.any? || user.subscribe_to_top_stories || user.subscribe_all_shows || user.subscribe_major_shows)
+          puts "* user #{user.id} has some subscriptions"
+        else
+          puts "* user #{user.id} has no subscriptions"
+        end
+
       when /start/i
         # find the starting question
         @question = Question.starting
@@ -206,6 +228,21 @@ if Rails.env.production?
     articles = []
 
     case postback.payload
+    when /^unsubscribe:/i
+      # parse the payload for answer id
+      yes_or_no = postback.payload.split(":").last
+      if yes_or_no == "1"
+        user.subscriptions.delete_all
+        user.update(subscribe_major_shows: false, subscribe_all_shows: false, subscribe_to_top_stories: false)
+        puts "* user #{user.id} now subscribed to #{user.subscriptions.size} brands; top stories: #{user.subscribe_to_top_stories}; all shows: #{user.subscribe_all_shows}; major shows: #{user.subscribe_major_shows}"
+
+        sentMessageText = Content.find_by_label("unsubscribed_confirmation").body
+        replyMessageContents = { text: sentMessageText }
+      else
+        sentMessageText = Content.find_by_label("unsubscribed_changed_mind").body
+        replyMessageContents = { text: sentMessageText }
+      end
+
     when /^answer:/
       # parse the payload for answer id
       answer_id = postback.payload.split(":").last
@@ -223,7 +260,7 @@ if Rails.env.production?
 
       # "All Shows"
       if @answer.action == "send_latest_shows"
-        user.update!(subscribe_all_shows: true)
+        user.update!(subscribe_all_shows: true, subscribe_major_shows: false)
         if Show.past.any?
           shows = Show.past.limit(4)
           begin
@@ -268,7 +305,7 @@ if Rails.env.production?
 
       elsif @answer.action == "send_major_shows"
         # respond with vogue picks of the shows
-        user.update!(subscribe_major_shows: true)
+        user.update!(subscribe_major_shows: true, subscribe_all_shows: false)
         shows = Show.past.where(major: true).limit(4)
         if !shows.any?
           sentMessageText = Content.find_by_label("no_latest_shows").body
