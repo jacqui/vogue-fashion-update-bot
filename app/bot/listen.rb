@@ -112,7 +112,7 @@ if Rails.env.production?
         }
 
       when /our picks|highlights|major|picks/i
-        shows = Show.where(major: true).order("date_time DESC").limit(4)
+        shows = Show.past.where(major: true).limit(4)
         if shows.any?
           sentMessageText = Content.find_by_label("our_picks").body
           replyMessageContents = { text: sentMessageText }
@@ -220,7 +220,7 @@ if Rails.env.production?
       elsif @answer.action == "send_major_shows"
         # respond with vogue picks of the shows
         user.update!(subscribe_major_shows: true)
-        shows = Show.where(major: true).order("date_time DESC").limit(4)
+        shows = Show.past.where(major: true).limit(4)
         if !shows.any?
           sentMessageText = Content.find_by_label("no_latest_shows").body
           replyMessageContents = { text: sentMessageText }
@@ -392,7 +392,7 @@ if Rails.env.production?
 
     # Send Major Shows
     when /OUR_PICKS|highlights/i
-      shows = Show.where(major: true).order("date_time DESC").limit(4)
+      shows = Show.past.where(major: true).limit(4)
       if shows.any?
         sentMessageText = Content.find_by_label("our_picks").body
           begin
