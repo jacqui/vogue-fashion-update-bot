@@ -140,7 +140,7 @@ if Rails.env.production?
 
           if question = Question.where(category: "designers").first
             if question.response.present?
-              sentMessageText = question.response.text
+              sentMessageText = question.response.text + brand.title
               replyMessageContents = { text: sentMessageText }
               message.reply(replyMessageContents)
               sent_message.update!(text: sentMessageText, sent_at: Time.now)
