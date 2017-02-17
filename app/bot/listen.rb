@@ -251,9 +251,10 @@ if Rails.env.production?
       @answer = PossibleAnswer.find(answer_id)
 
       begin
-        appropriate_response = @answer.appropriate_response
-        sentMessageText = appropriate_response.text
-        replyMessageContents = { text: sentMessageText }
+        if appropriate_response = @answer.appropriate_response
+          sentMessageText = appropriate_response.text
+          replyMessageContents = { text: sentMessageText }
+        end
       rescue => e
         puts e
       end
@@ -373,11 +374,13 @@ if Rails.env.production?
       elsif @answer.action == "subscribe_to_top_stories"
         # subscribe to top stories
         user.update!(subscribe_top_stories: true)
-        sentMessageText = @answer.response.text
-        replyMessageContents = { text: sentMessageText }
-        postback.reply(replyMessageContents)
+        if @answer.response && @answer.response.text
+          sentMessageText = @answer.response.text
+          replyMessageContents = { text: sentMessageText }
+          postback.reply(replyMessageContents)
+        end
 
-        @next_question = if @answer.response && @answer.response.next_question.present?
+       @next_question = if @answer.response && @answer.response.next_question.present?
                            @answer.response.next_question
                          elsif @answer.next_question.present?
                            @answer.next_question
