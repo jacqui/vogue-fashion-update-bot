@@ -130,45 +130,54 @@ if Rails.env.production?
 
         # default to looking up a brand
       else
-        # Send both shows and articles
-        if brand = Brand.where("title ilike ?", message.text.downcase).first
-          shows_and_articles = brand.latest_content
-          begin
-            user.deliver_message_for(shows_and_articles)
+        # try to parse comma-delimited brand names
+        begin
+          brands = message.text.split(',').map(&:strip)
+        rescue => e
+          puts e
+          brands = [message.text]
+        end
+        brands.each do |brand|
+          # Send both shows and articles
+          if brand = Brand.where("title ilike ?", message.text.downcase).first
+            shows_and_articles = brand.latest_content
+            begin
+              user.deliver_message_for(shows_and_articles)
 
-            if existing_sub = user.subscriptions.where(brand: brand).first
-              existing_sub.update(sent_at: Time.now)
-              puts "Updated existing subscription: #{user.id} user + #{brand.id} brand + #{existing_sub.id} sub"
-            elsif new_sub = user.subscriptions.create(brand: brand, signed_up_at: Time.now, sent_at: Time.now)
-              puts "Created new subscription: #{user.id} user + #{brand.id} brand + #{new_sub.id} sub"
-            else
-              puts "Failed subscribing user: #{user.id} user + #{brand.id} brand"
+              if existing_sub = user.subscriptions.where(brand: brand).first
+                existing_sub.update(sent_at: Time.now)
+                puts "Updated existing subscription: #{user.id} user + #{brand.id} brand + #{existing_sub.id} sub"
+              elsif new_sub = user.subscriptions.create(brand: brand, signed_up_at: Time.now, sent_at: Time.now)
+                puts "Created new subscription: #{user.id} user + #{brand.id} brand + #{new_sub.id} sub"
+              else
+                puts "Failed subscribing user: #{user.id} user + #{brand.id} brand"
+              end
+
+            rescue => e
+              puts "Failed replying to message because: #{e}"
             end
 
-          rescue => e
-            puts "Failed replying to message because: #{e}"
-          end
-
-          if question = Question.where(category: "designers").first
-            if question.response.present?
-              sentMessageText = question.response.text + brand.title
-              replyMessageContents = { text: sentMessageText }
+            # Failed finding a match for the brand entered
+          else
+            puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
+            sentMessageText = Content.find_by_label("unrecognised").body
+            begin
+              @received_message.update(unmatched_brand: true) if @received_message.present?
+              replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
               message.reply(replyMessageContents)
               sent_message.update!(text: sentMessageText, sent_at: Time.now)
+            rescue => e
+              puts e
             end
           end
+        end
 
-          # Failed finding a match for the brand entered
-        else
-          puts "Failed finding a matching brand for the text '#{message.text.downcase}'"
-          sentMessageText = Content.find_by_label("unrecognised").body
-          begin
-            @received_message.update(unmatched_brand: true) if @received_message.present?
-            replyMessageContents = { text: "#{sentMessageText} '#{message.text}'" }
+        if question = Question.where(category: "designers").first
+          if question.response.present?
+            sentMessageText = question.response.text + message.text
+            replyMessageContents = { text: sentMessageText }
             message.reply(replyMessageContents)
             sent_message.update!(text: sentMessageText, sent_at: Time.now)
-          rescue => e
-            puts e
           end
         end
       end
