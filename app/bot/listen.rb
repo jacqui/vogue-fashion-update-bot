@@ -22,8 +22,6 @@ if Rails.env.production?
 
       replyMessageContents = nil
       sentMessageText = nil
-      shows = []
-      articles = []
 
       Message.log_it(message)
 
@@ -54,45 +52,19 @@ if Rails.env.production?
           next_question = @question.response.next_question
           sentMessageText = next_question.text
           buttons = next_question.possible_answers.map do |pa|
-          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
-        end
-        replyMessageContents = {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'button',
-              text: sentMessageText,
-              buttons: buttons
-            }
-          }
-        }
-        end
-        @question = Question.starting
-        sentMessageText = @question.text
-
-        multipleTexts = @question.text.split(/\r\n/)
-        if multipleTexts.size > 1
-          sentMessageText = multipleTexts.pop # set it to the last message text
-          multipleTexts.each do |question_text|
-            if question_text != sentMessageText
-              message.reply(text: question_text)
-            end
+            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
           end
-        end
-
-        buttons = @question.possible_answers.map do |pa|
-          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
-        end
-        replyMessageContents = {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'button',
-              text: sentMessageText,
-              buttons: buttons
+          replyMessageContents = {
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'button',
+                text: sentMessageText,
+                buttons: buttons
+              }
             }
           }
-        }
+        end
 
       when /british vogue|vogue/i
         sentMessageText = "vogue.co.uk"
