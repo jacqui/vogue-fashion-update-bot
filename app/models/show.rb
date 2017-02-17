@@ -13,10 +13,10 @@ class Show < ApplicationRecord
   # after_create :send_to_all_users
 
   scope :upcoming, -> { where("date_time > ?", Time.now) }
-  scope :past, -> { where("date_time < ?", Time.now) }
+  scope :past, -> { where("date_time IS NOT NULL").order("date_time DESC") }
 
   def self.default_scope
-    where("uid NOT like 'XXX%'").order("title ASC")
+    where("uid NOT like 'XXX%'")
   end
 
   def upcoming?
