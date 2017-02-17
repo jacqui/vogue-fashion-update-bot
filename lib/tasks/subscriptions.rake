@@ -23,6 +23,7 @@ namespace :subscriptions do
       end
 
       if content_to_send.any?
+        content_to_send = content_to_send.first(4)
         content_to_send.each do |c|
           if c.is_a?(Article)
             SentMessage.create(article_id: c.id, user_id: sub.user.id, brand_id: sub.brand.id, sent_at: Time.now, text: c.title, push_notification: true, subscription_id: sub.id)
