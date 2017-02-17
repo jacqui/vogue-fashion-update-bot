@@ -206,7 +206,7 @@ if Rails.env.production?
       if @answer.action == "send_latest_shows"
         user.update!(subscribe_all_shows: true)
         if Show.past.any?
-          shows = Show.past.order("date_time DESC").limit(4)
+          shows = Show.past.limit(4)
           begin
             user.deliver_message_for(shows)
           rescue => e
@@ -408,7 +408,7 @@ if Rails.env.production?
     when /latest shows|latest runway|runway|catwalk|latest/i
       if Show.past.any?
         sentMessageText = Content.find_by_label("latest_shows").body
-        shows = Show.past.order("date_time DESC").limit(3)
+        shows = Show.past.limit(4)
         begin
           user.deliver_message_for(shows)
         rescue => e
