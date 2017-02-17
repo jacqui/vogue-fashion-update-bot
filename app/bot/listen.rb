@@ -200,6 +200,36 @@ if Rails.env.production?
           sentMessageText = Content.find_by_label("no_latest_shows").body
           replyMessageContents = { text: sentMessageText }
         end
+        @next_question = if @answer.response && @answer.response.next_question.present?
+                           @answer.response.next_question
+                         elsif @answer.next_question.present?
+                           @answer.next_question
+                         end
+        # pause
+
+        if @next_question
+          sentMessageText = @next_question.text
+          if @next_question.possible_answers.any?
+            buttons = @next_question.possible_answers.map do |pa|
+              { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+            end
+            replyMessageContents = {
+              attachment: {
+                type: 'template',
+                payload: {
+                  template_type: 'button',
+                  text: sentMessageText,
+                  buttons: buttons
+                }
+              }
+            }
+          else
+            sentMessageText = @next_question.text
+            replyMessageContents = { text: sentMessageText }
+          end
+          # postback.reply(replyMessageContents)
+          # sent_message.update!(text: sentMessageText, sent_at: Time.now)
+        end
 
       elsif @answer.action == "send_major_shows"
         # respond with vogue picks of the shows
@@ -214,6 +244,37 @@ if Rails.env.production?
           rescue => e
             puts "Failed replying to message #{postback.inspect} because: #{e}"
           end
+        end
+
+        @next_question = if @answer.response && @answer.response.next_question.present?
+                           @answer.response.next_question
+                         elsif @answer.next_question.present?
+                           @answer.next_question
+                         end
+        # pause
+
+        if @next_question
+          sentMessageText = @next_question.text
+          if @next_question.possible_answers.any?
+            buttons = @next_question.possible_answers.map do |pa|
+              { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+            end
+            replyMessageContents = {
+              attachment: {
+                type: 'template',
+                payload: {
+                  template_type: 'button',
+                  text: sentMessageText,
+                  buttons: buttons
+                }
+              }
+            }
+          else
+            sentMessageText = @next_question.text
+            replyMessageContents = { text: sentMessageText }
+          end
+          # postback.reply(replyMessageContents)
+          # sent_message.update!(text: sentMessageText, sent_at: Time.now)
         end
 
       elsif @answer.action == "follow_designer" && @answer.brand.present?
@@ -244,11 +305,14 @@ if Rails.env.production?
         replyMessageContents = { text: sentMessageText }
         postback.reply(replyMessageContents)
 
-        @next_question = @answer.next_question
+        @next_question = if @answer.response && @answer.response.next_question.present?
+                           @answer.response.next_question
+                         elsif @answer.next_question.present?
+                           @answer.next_question
+                         end
         # pause
 
-        if @answer.response && @answer.response.next_question.present?
-          @next_question = @answer.response.next_question
+        if @next_question
           sentMessageText = @next_question.text
           if @next_question.possible_answers.any?
             buttons = @next_question.possible_answers.map do |pa|
@@ -264,11 +328,12 @@ if Rails.env.production?
                 }
               }
             }
-
-          elsif @next_question
+          else
             sentMessageText = @next_question.text
             replyMessageContents = { text: sentMessageText }
           end
+          # postback.reply(replyMessageContents)
+          # sent_message.update!(text: sentMessageText, sent_at: Time.now)
         end
 
       elsif @answer.action == "ask_next_question" && @answer.next_question.present?
@@ -292,6 +357,8 @@ if Rails.env.production?
         else
           replyMessageContents = { text: sentMessageText }
         end
+        # postback.reply(replyMessageContents)
+        # sent_message.update!(text: sentMessageText, sent_at: Time.now)
       end
 
     when /follow_designer/i
