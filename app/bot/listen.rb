@@ -54,16 +54,15 @@ if Rails.env.production?
           next_question = @question.response.next_question
           sentMessageText = next_question.text
           buttons = next_question.possible_answers.map do |pa|
-            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+            { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
           end
           replyMessageContents = {
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'button',
-                text: sentMessageText,
-                buttons: buttons
-              }
+            recipient:{
+              id: user.fbid
+            },
+            message:{
+              text: sentMessageText,
+              quick_replies: buttons
             }
           }
         end
@@ -81,16 +80,15 @@ if Rails.env.production?
         end
 
         buttons = @question.possible_answers.map do |pa|
-          { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+          { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
         end
         replyMessageContents = {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'button',
-              text: sentMessageText,
-              buttons: buttons
-            }
+          recipient:{
+            id: user.fbid
+          },
+          message:{
+            text: sentMessageText,
+            quick_replies: buttons
           }
         }
 
@@ -264,21 +262,21 @@ if Rails.env.production?
 
         if @answer.response.next_question.present?
           @next_question = @answer.response.next_question
+          sentMessageText = @next_question.text
           if @next_question.possible_answers.any?
             buttons = @next_question.possible_answers.map do |pa|
-              { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+              { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
             end
-            sentMessageText = @next_question.text
             replyMessageContents = {
-              attachment: {
-                type: 'template',
-                payload: {
-                  template_type: 'button',
-                  text: sentMessageText,
-                  buttons: buttons
-                }
+              recipient:{
+                id: user.fbid
+              },
+              message:{
+                text: sentMessageText,
+                quick_replies: buttons
               }
             }
+
           elsif @next_question
             sentMessageText = @next_question.text
             replyMessageContents = { text: sentMessageText }
@@ -290,18 +288,17 @@ if Rails.env.production?
         @next_question = @answer.next_question
 
         if @next_question.possible_answers.any?
+          
           buttons = @next_question.possible_answers.map do |pa|
-            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
+            { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
           end
-          sentMessageText = @next_question.text
           replyMessageContents = {
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'button',
-                text: sentMessageText,
-                buttons: buttons
-              }
+            recipient:{
+              id: user.fbid
+            },
+            message:{
+              text: sentMessageText,
+              quick_replies: buttons
             }
           }
         else
@@ -312,25 +309,24 @@ if Rails.env.production?
 
     when /follow_designer/i
       @question = Question.where(category: "designers").first
-        if @question.possible_answers.any?
-          buttons = @question.possible_answers.map do |pa|
-            { type: 'postback', title: pa.value, payload: "answer:#{pa.id}" }
-          end
-          sentMessageText = @question.text
-          replyMessageContents = {
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'button',
-                text: sentMessageText,
-                buttons: buttons
-              }
-            }
-          }
-        else
-          sentMessageText = @question.text
-          replyMessageContents = { text: sentMessageText }
+      sentMessageText = @question.text
+      if @question.possible_answers.any?
+        buttons = @question.possible_answers.map do |pa|
+          { content_type: 'text', title: pa.value, payload: "answer:#{pa.id}" }
         end
+        replyMessageContents = {
+          recipient:{
+            id: user.fbid
+          },
+          message:{
+            text: sentMessageText,
+            quick_replies: buttons
+          }
+        }
+      else
+        sentMessageText = @question.text
+        replyMessageContents = { text: sentMessageText }
+      end
 
     when 'get_started'
       # find the starting question
