@@ -14,9 +14,9 @@ every 15.minutes do
   rake "articles:subs"
 end
 
-every 1.day do
-  rake "brands:populate"
-end
+# every 1.day do
+#   rake "brands:populate"
+# end
 
 every 6.hours do
   rake "articles:top"
