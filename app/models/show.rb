@@ -63,52 +63,55 @@ class Show < ApplicationRecord
     end
   end
 
-  def followers
-    recipients = []
-
-    puts "#{id} #{title} created, notifying:"
+  def brand_followers
     # 1. Anyone following show.brand
     followers = User.joins(:subscriptions).where(subscriptions: { brand_id: self.brand.id })
     if followers.any?
       puts "\t#{followers.size}: #{followers.map(&:id).sort.join(', ')}"
     end
-    recipients += followers
+    return followers
+  end
 
+  def major_show_followers
     majors = []
     # 2. Anyone following major shows - if this is a major show
     if major?
-      majors = if followers.any?
-                 User.where(subscribe_major_shows: true).where("id NOT IN(?)", followers.map(&:id))
-               else
-                 User.where(subscribe_major_shows: true)
-               end
+      majors = User.where(subscribe_major_shows: true)
       if majors.any?
         puts "\t#{majors.size} majors: #{majors.map(&:id).sort.join(', ')}"
-        recipients += majors
       end
     end
+    return majors
+  end
 
-
+  def all_show_followers
     # 3. Anyone following all shows - and this doesn't satisfy either
     all_subs = User.where(subscribe_all_shows: true).where.not(subscribe_major_shows: true)
-    the_rest = if followers.any?
-                 all_subs.where("id NOT IN(?)", followers.map(&:id))
-               else
-                 all_subs
-               end
+    return all_subs
+  end
 
-    if the_rest.any?
-      recipients += the_rest
-    end
-    puts "TOTAL: #{recipients.size} (#{recipients.uniq.size}) [#{recipients.flatten.uniq.size}]"
+  def find_valid_recipients
+    recipients = (brand_followers + major_show_followers + all_show_followers).uniq
+    puts "Show #{id} - #{title} has #{recipients.size} recipients to notify."
+
+    # the_rest = if followers.any?
+    #              all_subs.where("id NOT IN(?)", followers.map(&:id))
+    #            else
+    #              all_subs
+    #            end
+
+    # if the_rest.any?
+    #   recipients += the_rest
+    # end
+    # puts "TOTAL: #{recipients.size} (#{recipients.uniq.size}) [#{recipients.flatten.uniq.size}]"
     return recipients
   end
 
   def notify_followers
     return if date_time.nil? || uid.nil? || url.nil?
-    show_followers = followers
-    if show_followers.any?
-      show_followers.each do |f|
+    notify_users = find_valid_recipients
+    if notify_users.any?
+      notify_users.each do |f|
         if f.send_notification_for_show?(self)
           puts "++ SEND show##{id} to #{f.id}"
           # TODO: take this check out once verified
