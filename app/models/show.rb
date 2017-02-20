@@ -112,11 +112,9 @@ class Show < ApplicationRecord
         if f.send_notification_for_show?(self)
           puts "++ SEND show##{id} to #{f.id}"
           # TODO: take this check out once verified
-          if f.first_name == "Jacqui" && f.last_name == "Maher"
-            SentMessage.create!(user_id: f.id, show_id: id, sent_at: Time.now, brand_id: brand.id, push_notification: true, text: "New Show: #{title} at #{date_time}")
-            f.deliver_message_for([self])
-            sleep(5)
-          end
+          SentMessage.create!(user_id: f.id, show_id: id, sent_at: Time.now, brand_id: brand.id, push_notification: true, text: "New Show: #{title} at #{date_time}")
+          f.deliver_message_for([self])
+          sleep(5)
         end
       end
     end
