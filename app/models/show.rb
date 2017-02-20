@@ -202,14 +202,20 @@ class Show < ApplicationRecord
   end
 
   def shorten_url
-    return if url.blank? || url =~ /vogue.uk/
-    post_api = "http://po.st/api/shorten?longUrl=" + CGI.escape(url + URL_TRACKING_PARAMS) + "&apiKey=D0755A3C-CCFF-44D9-A6B6-1F11E209A591"
+    return if (uid.blank? && url.blank?) || url =~ /vogue.uk/
+
+    if url.blank? && !uid.blank?
+      long_url = "http://vogue.co.uk/shows/uid/#{uid}"
+    else
+      long_url = url
+    end
+    post_api = "http://po.st/api/shorten?longUrl=" + CGI.escape(long_url + URL_TRACKING_PARAMS) + "&apiKey=D0755A3C-CCFF-44D9-A6B6-1F11E209A591"
     response = HTTP.get(post_api).parse
     if response && response['status_txt'] == 'OK' && response['short_url']
       puts response['short_url']
       update(url: response['short_url'])
     else
-      puts "failed to shorten '#{url}': #{response}"
+      puts "failed to shorten '#{long_url}': #{response}"
     end
   end
 
