@@ -105,7 +105,7 @@ class Show < ApplicationRecord
   end
 
   def notify_followers
-    return if date_time.nil? || upcoming?
+    return if date_time.nil? || uid.nil? || url.nil?
     show_followers = followers
     if show_followers.any?
       show_followers.each do |f|
