@@ -164,7 +164,7 @@ if Rails.env.production?
         all_brand_titles = Brand.pluck(:title)
         brand_names.each do |brand_name|
           # Send both shows and articles
-          if matched_title = FuzzyMatch.new(all_brand_titles, brand_name)
+          if matched_title = FuzzyMatch.new(all_brand_titles).find(brand_name)
             brand = Brand.where(title: matched_title).first
           else
             brand = Brand.where("title ilike ?", brand_name).first
