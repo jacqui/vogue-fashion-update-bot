@@ -40,6 +40,7 @@ gem 'dotenv-rails', require: 'dotenv/rails-now'
 gem "http"
 gem 'addressable'
 gem 'kaminari'
+gem 'fuzzy_match'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

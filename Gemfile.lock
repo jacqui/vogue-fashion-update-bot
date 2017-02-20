@@ -86,6 +86,7 @@ GEM
       httparty (~> 0.13, >= 0.13.7)
       rack (>= 1.6.4)
     ffi (1.9.17)
+    fuzzy_match (2.1.0)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
     http (2.2.1)
@@ -232,6 +233,7 @@ DEPENDENCIES
   coffee-rails (~> 4.2)
   dotenv-rails
   facebook-messenger
+  fuzzy_match
   http
   httparty
   jbuilder (~> 2.5)

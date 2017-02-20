@@ -161,9 +161,16 @@ if Rails.env.production?
           brand_names = [message.text]
         end
         missing_brands = []
+        all_brand_titles = Brand.pluck(:title)
         brand_names.each do |brand_name|
           # Send both shows and articles
-          if brand = Brand.where("title ilike ?", brand_name).first
+          if matched_title = FuzzyMatch.new(all_brand_titles, brand_name)
+            brand = Brand.where(title: matched_title).first
+          else
+            brand = Brand.where("title ilike ?", brand_name).first
+          end
+
+          if brand
             shows_and_articles = brand.latest_content
             begin
               user.deliver_message_for(shows_and_articles)
