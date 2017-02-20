@@ -10,7 +10,7 @@ class Show < ApplicationRecord
 
   URL_TRACKING_PARAMS = "?utm_campaign=trial&utm_medium=social&utm_source=facebookbot"
 
-  # after_create :send_to_all_users
+  after_create :notify_followers
 
   scope :upcoming, -> { where("date_time > ?", Time.now) }
   scope :past, -> { where("date_time IS NOT NULL").where("url IS NOT NULL").order("date_time DESC") }
@@ -63,25 +63,62 @@ class Show < ApplicationRecord
     end
   end
 
-  def send_to_all_users
-    return if date_time.nil? || upcoming?
-    User.all.each do |user|
-      send_message(user)
+  def followers
+    recipients = []
+
+    puts "#{id} #{title} created, notifying:"
+    # 1. Anyone following show.brand
+    followers = User.joins(:subscriptions).where(subscriptions: { brand_id: self.brand.id })
+    if followers.any?
+      puts "\t#{followers.size}: #{followers.map(&:id).sort.join(', ')}"
     end
+    recipients += followers
+
+    majors = []
+    # 2. Anyone following major shows - if this is a major show
+    if major?
+      majors = if followers.any?
+                 User.where(subscribe_major_shows: true).where("id NOT IN(?)", followers.map(&:id))
+               else
+                 User.where(subscribe_major_shows: true)
+               end
+      if majors.any?
+        puts "\t#{majors.size} majors: #{majors.map(&:id).sort.join(', ')}"
+        recipients += majors
+      end
+    end
+
+
+    # 3. Anyone following all shows - and this doesn't satisfy either
+    all_subs = User.where(subscribe_all_shows: true).where.not(subscribe_major_shows: true)
+    the_rest = if followers.any?
+                 all_subs.where("id NOT IN(?)", followers.map(&:id))
+               else
+                 all_subs
+               end
+
+    if the_rest.any?
+      recipients += the_rest
+    end
+    puts "TOTAL: #{recipients.size} (#{recipients.uniq.size}) [#{recipients.flatten.uniq.size}]"
+    return recipients
   end
 
-  def shorten_url
-    return if uid.blank? || url =~ /vogue.uk/
-
-    show_url = "http://vogue.co.uk/shows/uid/#{uid}" + URL_TRACKING_PARAMS
-
-    post_api = "http://po.st/api/shorten?longUrl=" + show_url + "&apiKey=D0755A3C-CCFF-44D9-A6B6-1F11E209A591"
-    response = HTTP.get(post_api).parse
-    if response && response['status_txt'] == 'OK' && response['short_url']
-      puts response['short_url']
-      update(url: response['short_url'])
-    else
-      puts "failed to shorten '#{url}': #{response}"
+  def notify_followers
+    return if date_time.nil? || upcoming?
+    show_followers = followers
+    if show_followers.any?
+      show_followers.each do |f|
+        if f.send_notification_for_show?(self)
+          puts "++ SEND show##{id} to #{f.id}"
+          # TODO: take this check out once verified
+          if f.first_name == "Jacqui" && f.last_name == "Maher"
+            SentMessage.create!(user_id: f.id, show_id: id, sent_at: Time.now, brand_id: brand.id, push_notification: true, text: "New Show: #{title} at #{date_time}")
+            f.deliver_message_for([self])
+            sleep(5)
+          end
+        end
+      end
     end
   end
 

@@ -4,6 +4,63 @@ class User < ApplicationRecord
   has_many :brands, -> { distinct }, through: :subscriptions
   has_and_belongs_to_many :broadcasts
   has_many :messages
+  has_many :sent_messages
+
+  def self.subscribed_top_stories
+    where(subscribe_top_stories: true)
+  end
+
+  def self.subscribed_all_shows
+    where(subscribe_all_shows: true)
+  end
+
+  def self.subscribed_major_shows
+    where(subscribe_major_shows: true)
+  end
+
+  def self.with_show_subscriptions
+    subscribed_all_shows + subscribe_major_shows + User.joins(:subscriptions).group('users.id')
+  end
+
+  # return true if this user is signed up for show alerts:
+  #   * if 'all shows' then send all
+  #   * if 'major shows' and this one is 'major'
+  #   * if selected designers and this one is selected
+  # AND
+  # we have not sent one yet for this particular show
+  def send_notification_for_show?(show)
+    reason = ""
+    if (brands.any? && brands.include?(show.brand))
+      reason = "User ##{id} (#{name}) follows this show's brand. SEND."
+    elsif (subscribe_major_shows && show.major?)
+      reason = "User ##{id} (#{name}) subscribes to major shows. SEND."
+    elsif subscribe_all_shows
+      reason = "User ##{id} (#{name}) subscribes to all shows. SEND."
+    else
+      logger.debug "User ##{id} (#{name}) has no subscriptions, do not send."
+      return false
+    end
+
+    last_push_notification = SentMessage.where(user_id: id, push_notification: true).where("sent_at IS NOT NULL").order("sent_at DESC").first
+    if last_push_notification.present?
+      if last_push_notification.sent_at > 1.minute.ago
+        reason += " * last time we pushed a notification: #{last_push_notification.sent_at}; holding off on sending, too recent"
+        return false
+      end
+    end
+
+    already_sent = SentMessage.where("sent_at IS NOT NULL").where(show_id: show.id, user_id: id, push_notification: true)
+
+    if already_sent.any?
+      puts " * already sent a message to #{id} for show #{show.id} at #{already_sent.map(&:sent_at).join(', ')}"
+      return false
+    end
+
+    reason += " Haven't sent alert for #{show.id} and designer #{show.brand.id} yet. SEND."
+    puts reason
+    logger.debug reason
+    return true
+  end
 
   def name
     [first_name, last_name].join(' ')
