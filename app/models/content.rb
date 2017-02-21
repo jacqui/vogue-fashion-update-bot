@@ -1,10 +1,11 @@
 class Content < ApplicationRecord
   validates :title, uniqueness: true, presence: true
-  validates :label, uniqueness: true, presence: true
+  validates :label, uniqueness: true
   validates :body, presence: true
 
   URL_TRACKING_PARAMS = "?utm_campaign=trial&utm_medium=social&utm_source=facebookbot"
 
+  before_save :format_label
   after_save :update_facebook
 
   include Facebook::Messenger
@@ -20,6 +21,11 @@ class Content < ApplicationRecord
     rescue => e
       puts e
     end
+  end
+
+  def format_label
+    formatted_slug = title.parameterize
+    self.label = formatted_slug
   end
 
   def update_facebook
