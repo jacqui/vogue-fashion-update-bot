@@ -1,4 +1,36 @@
 namespace :brands do
+  desc "fix dupes"
+  task dedupe: :environment do
+    Brand.each do |brand|
+      if Brand.where(title: brand.title).count > 1
+        puts "De-duping brand ##{brand.id} - #{brand.title}"
+        all_brands = Brand.where(title: brand.title)
+        all_brands.sort_by!(&:id)
+        first_brand = all_brands.first
+        puts "og: #{first_brand.id} (#{all_brands.map(&:id).join(', ')}"
+        all_brands.each do |b|
+          puts "  #{b.id} ** #{b.articles.size} articles, #{b.shows.size} shows, #{b.users.size} users"
+          if b.id != first_brand.id && b.users.size > 0
+            puts "Migrating users to og brand"
+            b.subscriptions.each do |sub|
+              muser = sub.user
+              msigned_up_at = sub.signed_up_at
+              msent_at = sub.sent_at
+              sub.destroy!
+              first_brand.subscriptions.create!(user: muser, brand: first_brand, signed_up_at: msigned_up_at, sent_at: msent_at)
+            end
+          end
+
+          if b.id != first_brand.id
+            b.destroy!
+          end
+        end
+      else
+        puts "Brand ##{brand.id} has no dupes!"
+      end
+    end
+  end
+
   desc "populate the database with brands"
   task populate: :environment do
     require "http"
