@@ -1,17 +1,18 @@
 namespace :brands do
   desc "fix dupes"
   task dedupe: :environment do
+    Rails.logger.info "rake brands:dedupe begins"
     Brand.all.each do |brand|
       if Brand.where(title: brand.title).count > 1
-        puts "De-duping brand ##{brand.id} - #{brand.title}"
+        Rails.logger.debug "De-duping brand ##{brand.id} - #{brand.title}"
         all_brands = Brand.where(title: brand.title)
         all_brands.sort_by!(&:id)
         first_brand = all_brands.first
-        puts "og: #{first_brand.id} (#{all_brands.map(&:id).join(', ')}"
+        Rails.logger.debug "og: #{first_brand.id} (#{all_brands.map(&:id).join(', ')}"
         all_brands.each do |b|
-          puts "  #{b.id} ** #{b.articles.size} articles, #{b.shows.size} shows, #{b.users.size} users"
+          Rails.logger.debug "  #{b.id} ** #{b.articles.size} articles, #{b.shows.size} shows, #{b.users.size} users"
           if b.id != first_brand.id && b.users.size > 0
-            puts "Migrating users to og brand"
+            Rails.logger.debug "Migrating users to og brand"
             b.subscriptions.each do |sub|
               muser = sub.user
               msigned_up_at = sub.signed_up_at
@@ -26,28 +27,31 @@ namespace :brands do
           end
         end
       else
-        puts "Brand ##{brand.id} has no dupes!"
+        Rails.logger.debug "Brand ##{brand.id} has no dupes!"
       end
     end
+    Rails.logger.info "rake brands:dedupe done"
   end
 
   desc "populate the database with brands"
   task populate: :environment do
+    Rails.logger.info "rake brands:populate begins"
     require "http"
     require "addressable/uri"
     
-    puts "Brands count: #{Brand.count}"
+    Rails.logger.debug "Brands count: #{Brand.count}"
     brands = brand_paginated_get("tag")
     brands.each do |brand|
       if b = Brand.where(title: brand['title']).first
-        puts "Brand #{b.title} already exists."
+        Rails.logger.debug "Brand #{b.title} already exists."
       else
-        puts "Creating brand #{brand['title']}"
+        Rails.logger.debug "Creating brand #{brand['title']}"
         Brand.create!(title: brand['title'], slug: brand['slug'], uid: brand['uid'])
       end
     end
 
-    puts "Brands count: #{Brand.count}"
+    Rails.logger.debug "Brands count: #{Brand.count}"
+    Rails.logger.info "rake brands:populate done"
   end
 
 end
@@ -65,7 +69,7 @@ end
     
 def brand_get(path, params = {})
   brand_url = brands_url(path, params)
-  puts brand_url
+  Rails.logger.debug brand_url
   HTTP.get(brand_url).parse
 end
 
