@@ -22,6 +22,10 @@ class User < ApplicationRecord
     subscribed_all_shows + subscribe_major_shows + User.joins(:subscriptions).group('users.id')
   end
 
+  def self.admin_users
+    where(first_name: "Jacqui", last_name: "Maher")
+  end
+
   # return true if this user is signed up for show alerts:
   #   * if 'all shows' then send all
   #   * if 'major shows' and this one is 'major'
@@ -79,7 +83,7 @@ class User < ApplicationRecord
 
   def deliver_message_for(items)
     if items.empty? || items.size <= 0
-      puts "No items found to send user #{id}"
+      User.alert_admins(id, "No items found to send user #{id}, alerting admins")
       return
     end
 
@@ -102,22 +106,47 @@ class User < ApplicationRecord
         ]      
       }
     end
-    Bot.deliver({
-      recipient: {
-        id: fbid
-      },
-      message: {
-        attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'generic',
-            elements: elements
+
+    if elements && elements.any?
+      begin
+        Bot.deliver({
+          recipient: {
+            id: fbid
+          },
+          message: {
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'generic',
+                elements: elements
+              }
+            }
           }
-        }
-      }
-    }, access_token: ENV['ACCESS_TOKEN'])
-    self.last_message_sent_at = Time.now
-    self.save!
+        }, access_token: ENV['ACCESS_TOKEN'])
+        self.last_message_sent_at = Time.now
+        self.save!
+      rescue => e
+        User.alert_admins(id, "Failed sending message to user #{id} because: #{e}")
+      end
+    else
+      User.alert_admins(id, "Failed sending message to user ##{id}, alerting admins")
+    end
+  end
+
+  def self.alert_admins(recipient_id, text)
+    User.admin_users.each do |admin|
+      begin
+        puts text
+        Bot.deliver({
+          recipient: { id: admin.fbid },
+          message: { 
+            text: text
+          }
+        })
+      rescue => e
+        puts "#{text}: #{e}"
+      end
+    end
   end
 
   def self.create_with_sent_message(message)
