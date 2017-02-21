@@ -108,12 +108,17 @@ class Show < ApplicationRecord
   end
 
   def notify_followers
+    puts "[#{Time.now}] show#notify_followers begin"
     return if date_time.nil? || uid.nil? || url.nil?
+    puts "[#{Time.now}] show#notify_followers passed first req'd field check"
     notify_users = find_valid_recipients
+    puts "[#{Time.now}] show#notify_followers looked up valid recipients"
     if notify_users.any?
+      puts "[#{Time.now}] show#notify_followers recipient list not empty"
       notify_users.each do |f|
+        puts "[#{Time.now}] show#notify_followers recipient loop (each): #{f.id} #{f.name}"
         if f.send_notification_for_show?(self)
-          puts "++ SEND show##{id} to #{f.id}"
+          puts "[#{Time.now}] show#notify_followers sent notificatoin for show #{id} #{title} to user #{f.id} #{f.name}"
           # TODO: take this check out once verified
           SentMessage.create!(user_id: f.id, show_id: id, sent_at: Time.now, brand_id: brand.id, push_notification: true, text: "New Show: #{title} at #{date_time}")
           f.deliver_message_for([self])
