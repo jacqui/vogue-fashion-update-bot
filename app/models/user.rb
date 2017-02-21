@@ -78,6 +78,11 @@ class User < ApplicationRecord
   end
 
   def deliver_message_for(items)
+    if items.empty? || items.size <= 0
+      puts "No items found to send user #{id}"
+      return
+    end
+
     puts "Delivering message for user #{id}: #{items.size}"
     elements = items.map do |item|
       button_text = item.is_a?(Article) ? "View the Article" : "View the Show"
