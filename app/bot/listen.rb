@@ -115,10 +115,10 @@ if Rails.env.production?
       when /our picks|highlights|major|picks/i
         shows = Show.past.where(major: true).limit(4)
         if shows.any?
-          sentMessageText = Content.find_by_label("our_picks").body
+          sentMessageText = Content.find_by_label("highlighted_shows").body
           replyMessageContents = { text: sentMessageText }
         else
-          sentMessageText = Content.find_by_label("no_upcoming_shows").body
+          sentMessageText = Content.find_by_label("no_highlighted_shows").body
         end
         replyMessageContents = { text: sentMessageText }
         message.reply(replyMessageContents)
