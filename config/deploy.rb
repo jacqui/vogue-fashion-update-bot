@@ -1,9 +1,8 @@
 # config valid only for current version of Capistrano
 lock "3.7.2"
 
-
 set :application, "messenger_bot"
-set :repo_url, "git@github.com:conde-nast-international/fbmessenger-runway-bot.git"
+set :repo_url, "git@github.com:conde-nast-international/vogue-fashion-update-bot.git"
 
 # Defaults to false
 # Skip migration if files in db/migrate were not modified
