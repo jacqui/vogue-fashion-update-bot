@@ -118,7 +118,7 @@ namespace :shows do
       season = Season.where(title: seasonData['title'], slug: seasonData['slug'], uid: seasonData['uid']).first_or_create!
 
       brandData = show.delete('brand')
-      puts brandData['slug']
+      # puts brandData['slug']
       brand = Brand.create_with(title: brandData['title'], uid: brandData['uid']).find_or_create_by!(slug: brandData['slug'])
 
       imageUid = if show['images'] && show['images']['default'] && show['images']['default']['uid']
