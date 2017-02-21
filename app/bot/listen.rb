@@ -28,7 +28,7 @@ if Rails.env.production?
 
       case message.text
       when /stop|unsubscribe|quit/i
-        sentMessageText = Content.find-by-label("unsubscribe-are-you-sure").body
+        sentMessageText = Content.find_by_label("unsubscribe-are-you-sure").body
         buttons = [
           { type: 'postback', title: "Yes", payload: "unsubscribe:1" },
           { type: 'postback', title: "No", payload: "unsubscribe:0" }
@@ -152,61 +152,64 @@ if Rails.env.production?
         sent_message.update!(text: sentMessageText, sent_at: Time.now)
 
       else
+        # default to looking up a brand
+        # try to parse comma-delimited brand names
+        begin
+          brand_names = message.text.split(',').map(&:strip)
+        rescue => e
+          puts e
+          brand_names = [message.text]
+        end
+        missing_brands = []
+        all_brand_titles = Brand.pluck(:title)
+        brand_names.each do |brand_name|
 
-        # try matching against stored inputs/outputs first
-        if content = Content.find_match_for(message.text)
-          sentMessageText = content.body
-          message.reply({text: sentMessageText})
-          sent_message.update!(text: sentMessageText, sent_at: Time.now)
-        else
-          # default to looking up a brand
-          # try to parse comma-delimited brand names
-          begin
-            brand_names = message.text.split(',').map(&:strip)
-          rescue => e
-            puts e
-            brand_names = [message.text]
+          brand_name.gsub!('.', '')
+          brand_name.gsub!('-', '')
+          # Send both shows and articles
+          if matched_title = FuzzyMatch.new(all_brand_titles).find(brand_name)
+            brand = Brand.where(title: matched_title).first
+          else
+            brand = Brand.where("title ilike ?", brand_name).first
           end
-          missing_brands = []
-          all_brand_titles = Brand.pluck(:title)
-          brand_names.each do |brand_name|
-            # Send both shows and articles
-            if matched_title = FuzzyMatch.new(all_brand_titles).find(brand_name)
-              brand = Brand.where(title: matched_title).first
-            else
-              brand = Brand.where("title ilike ?", brand_name).first
-            end
 
-            if brand
-              shows_and_articles = brand.latest_content
-              begin
-                if shows_and_articles && shows_and_articles.size > 0
-                  user.deliver_message_for(shows_and_articles)
+          if brand
+            shows_and_articles = brand.latest_content
+            begin
+              if shows_and_articles && shows_and_articles.size > 0
+                user.deliver_message_for(shows_and_articles)
 
-                  if existing_sub = user.subscriptions.where(brand: brand).first
-                    existing_sub.update(sent_at: Time.now)
-                    puts "Updated existing subscription: #{user.id} user + #{brand.id} brand + #{existing_sub.id} sub"
-                  elsif new_sub = user.subscriptions.create(brand: brand, signed_up_at: Time.now, sent_at: Time.now)
-                    puts "Created new subscription: #{user.id} user + #{brand.id} brand + #{new_sub.id} sub"
-                  else
-                    puts "Failed subscribing user: #{user.id} user + #{brand.id} brand"
-                  end
+                if existing_sub = user.subscriptions.where(brand: brand).first
+                  existing_sub.update(sent_at: Time.now)
+                  puts "Updated existing subscription: #{user.id} user + #{brand.id} brand + #{existing_sub.id} sub"
+                elsif new_sub = user.subscriptions.create(brand: brand, signed_up_at: Time.now, sent_at: Time.now)
+                  puts "Created new subscription: #{user.id} user + #{brand.id} brand + #{new_sub.id} sub"
                 else
-                  puts "No shows or articles for #{brand.title} found to send user #{user.id}"
+                  puts "Failed subscribing user: #{user.id} user + #{brand.id} brand"
                 end
-
-              rescue => e
-                puts "Failed replying to message because: #{e}"
+              else
+                puts "No shows or articles for #{brand.title} found to send user #{user.id}"
               end
 
-              # Failed finding a match for the brand entered
-            else
-              puts "Failed finding a matching brand for the text '#{brand_name}'"
-              missing_brands << brand_name
+            rescue => e
+              puts "Failed replying to message because: #{e}"
             end
-          end
 
-          if missing_brands.any?
+            # Failed finding a match for the brand entered
+          else
+
+            puts "Failed finding a matching brand for the text '#{brand_name}'"
+            missing_brands << brand_name
+          end
+        end
+
+        # try matching against stored inputs/outputs last
+        if missing_brands.any?
+          if content = Content.find_match_for(message.text)
+            sentMessageText = content.body
+            message.reply({text: sentMessageText})
+            sent_message.update!(text: sentMessageText, sent_at: Time.now)
+          else
             sentMessageText = Content.find_by_label("unrecognised").body
             begin
               @received_message.update(unmatched_brand: true) if @received_message.present?
@@ -216,14 +219,13 @@ if Rails.env.production?
             rescue => e
               puts e
             end
-
-          elsif question = Question.where(category: "designers").first
-            if question.response.present?
-              sentMessageText = question.response.text + message.text
-              replyMessageContents = { text: sentMessageText }
-              message.reply(replyMessageContents)
-              sent_message.update!(text: sentMessageText, sent_at: Time.now)
-            end
+          end
+        elsif question = Question.where(category: "designers").first
+          if question.response.present?
+            sentMessageText = question.response.text + message.text
+            replyMessageContents = { text: sentMessageText }
+            message.reply(replyMessageContents)
+            sent_message.update!(text: sentMessageText, sent_at: Time.now)
           end
         end
       end
