@@ -5,10 +5,15 @@ class MessagesController < ApplicationController
   # GET /messages.json
   def index
     page = params[:page] ? params[:page] : 1
-    @messages = if params[:unmatched]
-                  Message.where(unmatched_brand: params[:unmatched]).order("updated_at DESC").page(page)
+    @message_type = params[:type] ? params[:type] : "incoming"
+    @messages = if @message_type == "sent" || @message_type == "outgoing"
+                  SentMessage.order("created_at DESC").page(page)
+                elsif @message_type == "unrecognised"
+                  Message.where(unmatched_brand: true).order("created_at DESC").page(page)
+                elsif @message_type == "incoming"
+                  Message.order("created_at DESC").page(page)
                 else
-                  Message.order("updated_at DESC").page(page)
+                  Message.order("created_at DESC").page(page)
                 end
   end
 

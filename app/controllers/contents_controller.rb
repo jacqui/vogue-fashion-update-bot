@@ -4,7 +4,8 @@ class ContentsController < ApplicationController
   # GET /contents
   # GET /contents.json
   def index
-    @contents = Content.all.order("title ASC")
+    page = params[:page] ? params[:page] : 1
+    @contents = Content.page(page).order("title ASC")
   end
 
   # GET /contents/1

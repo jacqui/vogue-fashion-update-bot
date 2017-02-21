@@ -38,16 +38,10 @@
               <%= link_to "Brands", brands_path, class: "nav-link" %>
           </li>
           <li class="nav-item">
-              <%= link_to "Shows", shows_path, class: "nav-link" %>
+              <%= link_to "Shows", shows_path(sort_by: 'date_time', dir: 'DESC'), class: "nav-link" %>
           </li>
           <li class="nav-item">
-              <%= link_to "Received", messages_path, class: "nav-link" %>
-          </li>
-          <li class="nav-item">
-              <%= link_to "Sent", sent_messages_path, class: "nav-link" %>
-          </li>
-          <li class="nav-item">
-              <%= link_to "Unrecognised Brands", messages_path(unmatched: 1), class: "nav-link" %>
+              <%= link_to "Message Logs", messages_path, class: "nav-link" %>
           </li>
         </ul>
       </div>
