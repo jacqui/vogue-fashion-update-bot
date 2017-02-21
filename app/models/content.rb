@@ -13,8 +13,9 @@ class Content < ApplicationRecord
     begin
       all_inputs = Content.pluck(:title)
       if matched_title = FuzzyMatch.new(all_inputs).find(text)
-        puts "Found a matching input: #{matched_title.id} - #{matched_title.body}"
-        return matched_title
+        content = Content.where(title: matched_title).first
+        puts "Found a matching input: #{content.id} - #{content.body}"
+        return content
       end
     rescue => e
       puts e
