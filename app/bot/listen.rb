@@ -543,10 +543,10 @@ if Rails.env.production?
         end
       end
 
-    when /latest shows|latest runway|runway|catwalk|latest/i
-      if Show.past.any?
+    when /latest shows|latest runway|runway|catwalk|latest_shows/i
+      shows = Show.past.limit(4)
+      if shows && shows.any? && shows.size >= 1
         sentMessageText = Content.find_by_label("latest_shows").body
-        shows = Show.past.limit(4)
         begin
           user.deliver_message_for(shows)
         rescue => e
