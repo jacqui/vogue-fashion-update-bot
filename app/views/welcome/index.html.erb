@@ -17,7 +17,7 @@
       <h2>Message Logs</h2>
       <p>How many people have talked to the bot? What messages have we <%= link_to "sent", messages_path(type: 'sent') %> or <%= link_to "received", messages_path(type: 'incoming') %>? All that info is here.</p>
       <p>
-      <%= link_to "Sent", messages_path(type: 'sent'), class: "btn btn-secondary", role: "button" %>
-      <%= link_to "Received", messages_path(type: 'incoming'), class: "btn btn-secondary", role: "button" %></p>
+      <%= link_to "Sent", messages_path(type: 'sent'), class: "btn btn-outline-secondary", role: "button" %>
+      <%= link_to "Received", messages_path(type: 'incoming'), class: "btn btn-outline-secondary", role: "button" %></p>
   </div>
 </div>
