@@ -2,7 +2,7 @@
   <div class="row">
 
     <div class="page-header">
-      <h1>Shows</h1>
+      <h1>Shows <small>(<%= @shows.total_count %>)</small></h1>
     </div>
 
     <p id="notice"><%= notice %></p>
@@ -12,8 +12,9 @@
 <table class="table">
   <thead>
     <tr>
-      <th>Title</th>
-      <th>Brand</th>
+      <th><%= link_to "Title", shows_path(sort_by: "title", dir: @sort_by == 'title' && @dir == 'DESC' ? 'ASC' : 'DESC') %></th>
+      <th><%= link_to "Brand", shows_path(sort_by: "brand.title", dir: @sort_by == 'brand.title' && @dir == 'DESC' ? 'ASC' : 'DESC') %></th>
+      <th><%= link_to "Date", shows_path(sort_by: "date_time", dir: @sort_by == 'date_time' && @dir == 'DESC' ? 'ASC' : 'DESC') %></th>
       <th></th>
     </tr>
   </thead>
@@ -23,6 +24,7 @@
       <tr>
         <td><%= link_to show.title, edit_show_path(show) %></td>
         <td><%= link_to show.brand.title, brand_path(show.brand) %></td>
+        <td><%= show.date_time %></td>
         <td><%= link_to 'Delete', show, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>

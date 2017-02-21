@@ -5,7 +5,16 @@ class ShowsController < ApplicationController
   # GET /shows.json
   def index
     page = params[:page] ? params[:page] : 1
-    @shows = Show.page(page)
+    @sort_by = params[:sort_by] ? params[:sort_by] : 'date_time'
+    @dir = params[:dir] ? params[:dir] : 'DESC'
+    @opposite_dir = @dir && @dir == 'DESC' ? 'ASC' : 'DESC'
+
+    @shows = if @sort_by.split('.').size > 1
+               tbl, field = @sort_by.split('.')
+               Show.includes(tbl).order("#{field} #{@dir}").page(page)
+             else
+               Show.order("#{@sort_by} #{@dir}").page(page)
+             end
   end
 
   # GET /shows/1
