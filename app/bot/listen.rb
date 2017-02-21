@@ -557,18 +557,6 @@ if Rails.env.production?
         replyMessageContents = { text: sentMessageText }
       end
 
-    when /upcoming/i
-      if Show.upcoming.any?
-        sentMessageText = Content.find_by_label("upcoming_shows").body + " "
-        next_three = Show.upcoming.order("date_time ASC").limit(3)
-        sentMessageText += next_three.map do |show|
-          "#{show.title} at #{show.date_time.to_formatted_s(:long_ordinal)}"
-        end.join(', ')
-      else
-        sentMessageText = Content.find_by_label("no_upcoming_shows").body
-      end
-      replyMessageContents = { text: sentMessageText }
-
     when /help/i
       sentMessageText = Content.find_by_label("help").body
       multipleTexts = sentMessageText.split(/\r\n/)
