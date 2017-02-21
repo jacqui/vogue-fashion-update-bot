@@ -1,0 +1,42 @@
+<div class="container" style="margin-top: 70px">
+  <div class="row d-flex justify-content-between bd-highlight mb-3">
+    <div class="page-header">
+      <h1>Users</h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <%= paginate @users %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Facebook ID</th>
+          <th>Designers Following</th>
+          <th>Top Stories?</th>
+          <th>Shows?</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td>
+              <%= link_to user.name, user %> <%= "(CNI)" if user.cni_employee? %>
+            </td>
+            <td><%= user.fbid %></td>
+            <td><%= user.brands.size %></td>
+            <td><%= user.subscribe_top_stories ? 'x' : '' %></td>
+            <td>
+              <%= user.subscribe_all_shows && !user.subscribe_major_shows ? 'All' : '' %>
+              <%= !user.subscribe_all_shows && user.subscribe_major_shows ? 'Major' : '' %>
+              <%= !user.subscribe_all_shows && !user.subscribe_major_shows ? 'None' : '' %>
+            </td>
+            <td><%= link_to 'Delete', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <%= paginate @users %>
+  </div>
+</div>

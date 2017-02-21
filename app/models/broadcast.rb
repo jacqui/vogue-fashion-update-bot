@@ -46,7 +46,13 @@ class Broadcast < ApplicationRecord
                        raise "Unknown broadcast message type: #{broadcast.template}"
                      end
 
-    User.all.each do |user|
+    recipients = if broadcast.internal_only?
+                   User.where(cni_employee: true)
+                 else
+                   User.all
+                 end
+
+    recipients.each do |user|
       sent_at = Time.now
       combined_message_params = { recipient: { id: user.fbid } }.merge(message_params)
       begin

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170221143903) do
+ActiveRecord::Schema.define(version: 20170221151821) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,13 +39,14 @@ ActiveRecord::Schema.define(version: 20170221143903) do
 
   create_table "broadcasts", force: :cascade do |t|
     t.text     "text"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.string   "title"
     t.string   "image_url"
     t.string   "button_text"
     t.string   "link"
     t.string   "template"
+    t.boolean  "internal_only", default: false
   end
 
   create_table "broadcasts_users", id: false, force: :cascade do |t|
@@ -206,6 +207,7 @@ ActiveRecord::Schema.define(version: 20170221143903) do
     t.boolean  "subscribe_top_stories", default: false
     t.boolean  "subscribe_all_shows",   default: false
     t.boolean  "subscribe_major_shows", default: false
+    t.boolean  "cni_employee",          default: false
   end
 
   add_foreign_key "articles", "brands"

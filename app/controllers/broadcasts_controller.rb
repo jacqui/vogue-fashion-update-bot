@@ -15,6 +15,7 @@ class BroadcastsController < ApplicationController
   # GET /broadcasts/new
   def new
     @broadcast = Broadcast.new
+    @internal_recipients = User.where("cni_employee = ?", true).order("last_name ASC")
   end
 
   # GET /broadcasts/1/edit

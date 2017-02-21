@@ -1,0 +1,63 @@
+<div class="container" style="margin-top: 70px">
+  <div class="row">
+    <div class="page-header">
+      <h1>User: <%= @user.name %></h1>
+    </div>
+  </div>
+
+  <p id="notice"><%= notice %></p>
+
+  <div class="row">
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Name</th>
+          <td><%= @user.name %></td>
+        </tr>
+        <tr>
+          <th>CNI Employee?</th>
+          <td><%= @user.cni_employee %></td>
+        </tr>
+        <tr>
+          <th>Created at</th>
+          <td><%= @user.created_at.to_formatted_s(:long_ordinal) %></td>
+        </tr>
+        <tr>
+          <th>Subscriptions</th>
+          <td>
+            <ul>
+              <li><strong>Top Stories: </strong> <%= @user.subscribe_top_stories ? "Yes" : "No" %></li>
+              <li><strong>All Shows: </strong> <%= @user.subscribe_all_shows ? "Yes" : "No" %></li>
+              <li><strong>Major Shows: </strong> <%= @user.subscribe_major_shows ? "Yes" : "No" %></li>
+              <% if @user.subscriptions.any? %>
+                <li><strong>Designers: </strong> <%= @user.subscriptions.map{|s| s.brand.title }.join(', ') %></li>
+              <% end %>
+          </td>
+        </tr>
+        <tr>
+          <th>Messages</th>
+          <td>
+            <ul>
+              <li>To the bot: <%= @user.messages.count %></li>
+              <li>From the bot: <%= @user.sent_messages.count %></li>
+              <li>Broadcast: <%= @user.broadcasts.count %></li>
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <th>Gender</th>
+          <td><%= @user.gender %></td>
+        </tr>
+        <tr>
+          <th>Timezone</th>
+          <td><%= @user.timezone || "Unknown" %></td>
+        </tr>
+        <tr>
+          <th>Locale</th>
+          <td><%= @user.locale || "Unknown" %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

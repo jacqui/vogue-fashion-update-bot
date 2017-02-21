@@ -1,22 +1,26 @@
 Rails.application.routes.draw do
-  resources :notifications
-  resources :conversations
-  resources :possible_answers
-  resources :responses
-  resources :questions
-  resources :sent_messages
   mount Facebook::Messenger::Server, at: 'bot'
-  resources :broadcasts
-  resources :messages
-  resources :contents
+
   resources :articles do
     collection do
       get 'top_stories'
     end
   end
   resources :brands
+  resources :broadcasts
+  resources :contents
+  resources :conversations
+  resources :messages
+  resources :notifications
+  resources :possible_answers
+  resources :questions
+  resources :responses
+  resources :sent_messages
   resources :shows
+  resources :users
+
   get 'data', to: 'welcome#data'
+
   root to: 'welcome#index'
   
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

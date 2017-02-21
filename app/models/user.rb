@@ -1,10 +1,13 @@
 class User < ApplicationRecord
-  has_many :notifications
-  has_many :subscriptions
+  has_many :notifications, dependent: :destroy
+  has_many :subscriptions, dependent: :destroy
   has_many :brands, -> { distinct }, through: :subscriptions
   has_and_belongs_to_many :broadcasts
-  has_many :messages
-  has_many :sent_messages
+  has_many :messages, dependent: :destroy
+  has_many :sent_messages, dependent: :destroy
+  has_many :conversations, dependent: :destroy
+
+  CNI_FBIDS = %w(1366014510140263 1215592221827862 1035743073194005 1330357597002942 1278774235543070 1293006020783127 1329552807066809 1229462123768938)
 
   def self.subscribed_top_stories
     where(subscribe_top_stories: true)
@@ -23,7 +26,11 @@ class User < ApplicationRecord
   end
 
   def self.admin_users
-    where(first_name: "Jacqui", last_name: "Maher")
+    where(cni_employee: true)
+  end
+
+  def self.admins_first
+    order("cni_employee DESC").order("last_name ASC")
   end
 
   # return true if this user is signed up for show alerts:
