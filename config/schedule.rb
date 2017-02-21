@@ -2,11 +2,11 @@ env :PATH, ENV['PATH']
 set :path, "/home/ubuntu/messenger_bot/current"
 set :output, {:error => '/home/ubuntu/messenger_bot/shared/log/cron_errors.log', :standard => '/home/ubuntu/messenger_bot/shared/log/cron_output.log'}
 
-every 10.minutes do
+every 12.hours do
   rake "shows:major"
 end
  
-every 8.minutes do
+every 5.minutes do
   rake "shows:regular"
 end
  
