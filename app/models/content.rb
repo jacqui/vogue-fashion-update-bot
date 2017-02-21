@@ -9,6 +9,18 @@ class Content < ApplicationRecord
 
   include Facebook::Messenger
 
+  def self.find_match_for(text)
+    begin
+      all_inputs = Content.pluck(:title)
+      if matched_title = FuzzyMatch.new(all_inputs).find(text)
+        puts "Found a matching input: #{matched_title.id} - #{matched_title.body}"
+        return matched_title
+      end
+    rescue => e
+      puts e
+    end
+  end
+
   def update_facebook
     case label
     when "greeting"

@@ -151,71 +151,79 @@ if Rails.env.production?
         message.reply(replyMessageContents)
         sent_message.update!(text: sentMessageText, sent_at: Time.now)
 
-        # default to looking up a brand
       else
-        # try to parse comma-delimited brand names
-        begin
-          brand_names = message.text.split(',').map(&:strip)
-        rescue => e
-          puts e
-          brand_names = [message.text]
-        end
-        missing_brands = []
-        all_brand_titles = Brand.pluck(:title)
-        brand_names.each do |brand_name|
-          # Send both shows and articles
-          if matched_title = FuzzyMatch.new(all_brand_titles).find(brand_name)
-            brand = Brand.where(title: matched_title).first
-          else
-            brand = Brand.where("title ilike ?", brand_name).first
-          end
 
-          if brand
-            shows_and_articles = brand.latest_content
-            begin
-              if shows_and_articles && shows_and_articles.size > 0
-                user.deliver_message_for(shows_and_articles)
-
-                if existing_sub = user.subscriptions.where(brand: brand).first
-                  existing_sub.update(sent_at: Time.now)
-                  puts "Updated existing subscription: #{user.id} user + #{brand.id} brand + #{existing_sub.id} sub"
-                elsif new_sub = user.subscriptions.create(brand: brand, signed_up_at: Time.now, sent_at: Time.now)
-                  puts "Created new subscription: #{user.id} user + #{brand.id} brand + #{new_sub.id} sub"
-                else
-                  puts "Failed subscribing user: #{user.id} user + #{brand.id} brand"
-                end
-              else
-                puts "No shows or articles for #{brand.title} found to send user #{user.id}"
-              end
-
-            rescue => e
-              puts "Failed replying to message because: #{e}"
-            end
-
-            # Failed finding a match for the brand entered
-          else
-            puts "Failed finding a matching brand for the text '#{brand_name}'"
-            missing_brands << brand_name
-          end
-        end
-
-        if missing_brands.any?
-          sentMessageText = Content.find_by_label("unrecognised").body
+        # try matching against stored inputs/outputs first
+        if content = Content.find_match_for(message.text)
+          sentMessageText = content.body
+          message.reply({text: sentMessageText})
+          sent_message.update!(text: sentMessageText, sent_at: Time.now)
+        else
+          # default to looking up a brand
+          # try to parse comma-delimited brand names
           begin
-            @received_message.update(unmatched_brand: true) if @received_message.present?
-            replyMessageContents = { text: sentMessageText }
-            message.reply(replyMessageContents)
-            sent_message.update!(text: sentMessageText, sent_at: Time.now)
+            brand_names = message.text.split(',').map(&:strip)
           rescue => e
             puts e
+            brand_names = [message.text]
+          end
+          missing_brands = []
+          all_brand_titles = Brand.pluck(:title)
+          brand_names.each do |brand_name|
+            # Send both shows and articles
+            if matched_title = FuzzyMatch.new(all_brand_titles).find(brand_name)
+              brand = Brand.where(title: matched_title).first
+            else
+              brand = Brand.where("title ilike ?", brand_name).first
+            end
+
+            if brand
+              shows_and_articles = brand.latest_content
+              begin
+                if shows_and_articles && shows_and_articles.size > 0
+                  user.deliver_message_for(shows_and_articles)
+
+                  if existing_sub = user.subscriptions.where(brand: brand).first
+                    existing_sub.update(sent_at: Time.now)
+                    puts "Updated existing subscription: #{user.id} user + #{brand.id} brand + #{existing_sub.id} sub"
+                  elsif new_sub = user.subscriptions.create(brand: brand, signed_up_at: Time.now, sent_at: Time.now)
+                    puts "Created new subscription: #{user.id} user + #{brand.id} brand + #{new_sub.id} sub"
+                  else
+                    puts "Failed subscribing user: #{user.id} user + #{brand.id} brand"
+                  end
+                else
+                  puts "No shows or articles for #{brand.title} found to send user #{user.id}"
+                end
+
+              rescue => e
+                puts "Failed replying to message because: #{e}"
+              end
+
+              # Failed finding a match for the brand entered
+            else
+              puts "Failed finding a matching brand for the text '#{brand_name}'"
+              missing_brands << brand_name
+            end
           end
 
-        elsif question = Question.where(category: "designers").first
-          if question.response.present?
-            sentMessageText = question.response.text + message.text
-            replyMessageContents = { text: sentMessageText }
-            message.reply(replyMessageContents)
-            sent_message.update!(text: sentMessageText, sent_at: Time.now)
+          if missing_brands.any?
+            sentMessageText = Content.find_by_label("unrecognised").body
+            begin
+              @received_message.update(unmatched_brand: true) if @received_message.present?
+              replyMessageContents = { text: sentMessageText }
+              message.reply(replyMessageContents)
+              sent_message.update!(text: sentMessageText, sent_at: Time.now)
+            rescue => e
+              puts e
+            end
+
+          elsif question = Question.where(category: "designers").first
+            if question.response.present?
+              sentMessageText = question.response.text + message.text
+              replyMessageContents = { text: sentMessageText }
+              message.reply(replyMessageContents)
+              sent_message.update!(text: sentMessageText, sent_at: Time.now)
+            end
           end
         end
       end
@@ -391,7 +399,7 @@ if Rails.env.production?
           postback.reply(replyMessageContents)
         end
 
-       @next_question = if @answer.response && @answer.response.next_question.present?
+        @next_question = if @answer.response && @answer.response.next_question.present?
                            @answer.response.next_question
                          elsif @answer.next_question.present?
                            @answer.next_question
@@ -528,7 +536,7 @@ if Rails.env.production?
         }
       }
 
-    # Send Major Shows
+      # Send Major Shows
     when /OUR_PICKS|highlights/i
       user.update!(subscribe_major_shows: true)
       shows = Show.past.where(major: true).limit(4)
