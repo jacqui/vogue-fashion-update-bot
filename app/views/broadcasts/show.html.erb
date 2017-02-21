@@ -1,10 +1,37 @@
 <div class="container" style="margin-top: 70px">
   <div class="row">
+    <div class="page-header">
+      <h1>Broadcast Message</h1>
+    </div>
+  </div>
+  <div class="row">
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Type</th>
+          <td><%= @broadcast.template %></td>
+        </tr>
+        <% if @broadcast.text? %>
+          <tr>
+            <th>Text</th>
+            <td><%= @broadcast.text %></td>
+          </tr>
 
-<p>
-  <strong>Text:</strong>
-  <%= @broadcast.text %>
-</p>
-
+        <% else %>
+          <tr>
+            <th>Title</th>
+            <td><%= @broadcast.title %></td>
+          </tr>
+          <tr>
+            <th>Image</th>
+            <td><img src="<%= @broadcast.image_url %>"/></td>
+          </tr>
+          <tr>
+            <th>Link</th>
+            <td><%= @broadcast.link %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 </div>

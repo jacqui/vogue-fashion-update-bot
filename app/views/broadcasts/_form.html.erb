@@ -11,12 +11,38 @@
     </div>
   <% end %>
 
-  <div class="field">
+  <div class="form-group">
+    <%= f.label :template %>
+    <%= f.select :template, Broadcast::VALID_TEMPLATES, class: "form-control" %>
+  </div>
+
+  <div class="form-group col-12">
+    <%= f.label :title %>
+    <%= f.text_field :title, class: "form-control" %>
+  </div>
+
+  <div class="form-group col-12">
+    <%= f.label :image_url %>
+    <%= f.text_field :image_url, class: "form-control" %>
+  </div>
+
+  <div class="form-group col-12">
+    <%= f.label :button_text %>
+    <%= f.text_field :button_text, class: "form-control" %>
+  </div>
+
+  <div class="form-group col-12">
+    <%= f.label :link %>
+    <%= f.text_field :link, class: "form-control" %>
+  </div>
+
+  <div class="form-group col-12">
     <%= f.label :text %>
-    <%= f.text_area :text %>
+    <%= f.text_area :text, class: "form-control form-control-lg", rows: 3, "aria-describedby": "textHelp" %>
+    <small id="textHelp" class="form-text text-muted">Note: this is only used for plain-text messages. Otherwise anything entered here is ignored.</small>
   </div>
 
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit "Send immediately", class: "btn btn-danger", data: { confirm: 'Are you sure?' } %>
   </div>
 <% end %>

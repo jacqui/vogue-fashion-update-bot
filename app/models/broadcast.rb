@@ -1,4 +1,6 @@
 class Broadcast < ApplicationRecord
+  VALID_TEMPLATES = %w(text image video)
+
   has_and_belongs_to_many :users
   validates :title, presence: true, 
     unless: Proc.new { |b| b.template.blank? || b.template == 'text' }
@@ -12,7 +14,7 @@ class Broadcast < ApplicationRecord
   after_create do |broadcast|
     message_params = if broadcast.template.blank? || broadcast.template == 'text'
                        { message: { text: broadcast.text } }
-                     elsif broadcast.template == 'image'
+                     elsif %w(image video).include?(broadcast.template)
                        {
                          message: {
                            attachment: {
@@ -49,12 +51,24 @@ class Broadcast < ApplicationRecord
       combined_message_params = { recipient: { id: user.fbid } }.merge(message_params)
       begin
         Bot.deliver(combined_message_params, access_token: ENV['ACCESS_TOKEN'])
+
         user.broadcasts << broadcast
         user.last_message_sent_at = sent_at
         user.save!
+
+        SentMessage.create!(user_id: user.id, text: content, push_notification: false, sent_at: Time.now)
       rescue => e
         puts e
       end
     end
+  end
+
+  def text?
+    template.blank? || template == 'text'
+  end
+
+  def content
+    return text if text?
+    return title
   end
 end

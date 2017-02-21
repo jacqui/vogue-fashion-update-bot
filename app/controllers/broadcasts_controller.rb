@@ -67,8 +67,7 @@ class BroadcastsController < ApplicationController
       @broadcast = Broadcast.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def broadcast_params
-      params.require(:broadcast).permit(:text)
+      params.require(:broadcast).permit!
     end
 end
