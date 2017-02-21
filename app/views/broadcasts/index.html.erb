@@ -3,15 +3,20 @@
     <div class="page-header">
       <h1>Broadcast Messages</h1>
     </div>
+  </div>
 
-    <%= link_to 'New Broadcast Message', new_broadcast_path, class: "btn btn-success" %>
+  <div class="row">
+    <p><%= link_to 'New Broadcast Message', new_broadcast_path, class: "btn btn-success" %></p>
+  </div>
+
+  <div class="row">
     <table class="table">
       <thead>
         <tr>
           <th>ID</th>
           <th>Type</th>
           <th>Content</th>
-          <th>Sent At</th>
+          <th>Recipients</th>
           <th></th>
         </tr>
       </thead>
@@ -22,15 +27,15 @@
             <td><%= link_to broadcast.id, broadcast %></td>
             <td><%= link_to broadcast.template, broadcast %></td>
             <td><%= link_to broadcast.content, broadcast.content %></td>
-            <td></td>
+            <td><%= broadcast.internal_only? ? "CNI only" : "All" %></td>
             <td></td>
           </tr>
         <% end %>
       </tbody>
     </table>
 
-    <br>
-
-    <%= link_to 'New Broadcast Message', new_broadcast_path, class: "btn btn-success" %>
+  </div>
+  <div class="row">
+    <p><%= link_to 'New Broadcast Message', new_broadcast_path, class: "btn btn-success" %></p>
   </div>
 </div>
