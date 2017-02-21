@@ -28,7 +28,7 @@ if Rails.env.production?
 
       case message.text
       when /stop|unsubscribe|quit/i
-        sentMessageText = Content.find_by_label("unsubscribe_are_you_sure").body
+        sentMessageText = Content.find-by-label("unsubscribe-are-you-sure").body
         buttons = [
           { type: 'postback', title: "Yes", payload: "unsubscribe:1" },
           { type: 'postback', title: "No", payload: "unsubscribe:0" }
@@ -115,10 +115,10 @@ if Rails.env.production?
       when /our picks|highlights|major|picks/i
         shows = Show.past.where(major: true).limit(4)
         if shows.any?
-          sentMessageText = Content.find_by_label("highlighted_shows").body
+          sentMessageText = Content.find_by_label("highlighted-shows").body
           replyMessageContents = { text: sentMessageText }
         else
-          sentMessageText = Content.find_by_label("no_highlighted_shows").body
+          sentMessageText = Content.find_by_label("no_highlighted-shows").body
         end
         replyMessageContents = { text: sentMessageText }
         message.reply(replyMessageContents)
@@ -255,10 +255,10 @@ if Rails.env.production?
         user.update(subscribe_major_shows: false, subscribe_all_shows: false, subscribe_top_stories: false)
         puts "* user #{user.id} now subscribed to #{user.subscriptions.size} brands; top stories: #{user.subscribe_top_stories}; all shows: #{user.subscribe_all_shows}; major shows: #{user.subscribe_major_shows}"
 
-        sentMessageText = Content.find_by_label("unsubscribed_confirmation").body
+        sentMessageText = Content.find_by_label("unsubscribed-confirmation").body
         replyMessageContents = { text: sentMessageText }
       else
-        sentMessageText = Content.find_by_label("unsubscribed_changed_mind").body
+        sentMessageText = Content.find_by_label("unsubscribed-changed-mind").body
         replyMessageContents = { text: sentMessageText }
       end
 
@@ -289,7 +289,7 @@ if Rails.env.production?
             puts "Failed replying to message #{postback.inspect} because: #{e}"
           end
         else
-          sentMessageText = Content.find_by_label("no_latest_shows").body
+          sentMessageText = Content.find_by_label("no-latest-shows").body
           replyMessageContents = { text: sentMessageText }
         end
         @next_question = if @answer.response && @answer.response.next_question.present?
@@ -328,7 +328,7 @@ if Rails.env.production?
         user.update!(subscribe_major_shows: true, subscribe_all_shows: false)
         shows = Show.past.where(major: true).limit(4)
         if !shows.any?
-          sentMessageText = Content.find_by_label("no_latest_shows").body
+          sentMessageText = Content.find_by_label("no-latest-shows").body
           replyMessageContents = { text: sentMessageText }
         else
           begin
@@ -541,7 +541,7 @@ if Rails.env.production?
       user.update!(subscribe_major_shows: true)
       shows = Show.past.where(major: true).limit(4)
       if !shows.any?
-        sentMessageText = Content.find_by_label("no_latest_shows").body
+        sentMessageText = Content.find_by_label("no-latest-shows").body
         replyMessageContents = { text: sentMessageText }
       else
         begin
@@ -554,14 +554,14 @@ if Rails.env.production?
     when /latest shows|latest runway|runway|catwalk|latest_shows/i
       shows = Show.past.limit(4)
       if shows && shows.any? && shows.size >= 1
-        sentMessageText = Content.find_by_label("latest_shows").body
+        sentMessageText = Content.find_by_label("latest-shows").body
         begin
           user.deliver_message_for(shows)
         rescue => e
           puts "Failed replying to message #{postback.inspect} because: #{e}"
         end
       else
-        sentMessageText = Content.find_by_label("no_latest_shows").body
+        sentMessageText = Content.find_by_label("no-latest-shows").body
         replyMessageContents = { text: sentMessageText }
       end
 
