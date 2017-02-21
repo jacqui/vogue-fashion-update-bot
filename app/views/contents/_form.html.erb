@@ -18,12 +18,6 @@
   </div>
 
   <div class="form-group col-12">
-    <%= f.label :label, "A human-readable, machine-parseable unique identifier for this term" %>
-    <%= f.text_field :label, class: "form-control form-control-lg", "aria-describedby": "labelHelp" %>
-    <small id="labelHelp" class="form-text text-muted">The bot uses this label (aka a 'slug' or 'parameter') to look up the appropriate response. Don't change this once set!</small>
-  </div>
-
-  <div class="form-group col-12">
     <%= f.label :output, "... the bot responds with this text message." %>
     <%= f.text_area :body, class: "form-control form-control-lg", rows: 5, "aria-describedby": "outputHelp" %>
     <small id="outputHelp" class="form-text text-muted">Coming soon, the ability to respond with rich media types including links, buttons and photo carousels.</small>
