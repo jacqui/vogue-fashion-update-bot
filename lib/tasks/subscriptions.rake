@@ -5,7 +5,7 @@ namespace :subscriptions do
     puts "Subscriptions count: #{subs.size}"
 
     subs.each do |sub|
-      puts " * #{sub.id} for user #{sub.user.id} #{sub.user.name} - #{sub.brand.id} #{sub.brand.title}"
+      puts " * #{sub.id} for user #{sub.user.id rescue 'unknown user'} #{sub.user.name rescue ''} - #{sub.brand.id rescue 'unknown brand'} #{sub.brand.title rescue ''}"
       content_to_send = sub.find_content_to_send
 
       last_push_notification = SentMessage.where(user_id: sub.user.id, push_notification: true).where("sent_at IS NOT NULL").order("sent_at DESC").first

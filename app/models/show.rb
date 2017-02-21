@@ -108,6 +108,7 @@ class Show < ApplicationRecord
   end
 
   def notify_followers
+    logger.debug "[#{Time.now}] Notifying followers of the new show '#{title}'"
     puts "[#{Time.now}] show#notify_followers begin"
     return if date_time.nil? || uid.nil? || url.nil?
     puts "[#{Time.now}] show#notify_followers passed first req'd field check"
