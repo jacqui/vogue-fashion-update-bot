@@ -12,21 +12,24 @@
   <% end %>
 
   <div class="form-group col-12">
-    <%= f.label :title %>
-    <%= f.text_field :title, class: "form-control form-control-lg" %>
+  <%= f.label :input, "When a Facebook user messages the bot with this input phrase... " %>
+    <%= f.text_field :title, class: "form-control form-control-lg", "aria-describedby": "inputHelp" %>
+    <small id="inputHelp" class="form-text text-muted">Note: a case-insensitive match is done on all known 'inputs' when a message is received, so the input "favourite colour" would match on: "What's your favourite colour?" and "FAVOURITE COLour?"</small>
   </div>
 
   <div class="form-group col-12">
-    <%= f.label :label %>
-    <%= f.text_field :label, class: "form-control form-control-lg" %>
+    <%= f.label :label, "A human-readable, machine-parseable unique identifier for this term" %>
+    <%= f.text_field :label, class: "form-control form-control-lg", "aria-describedby": "labelHelp" %>
+    <small id="labelHelp" class="form-text text-muted">The bot uses this label (aka a 'slug' or 'parameter') to look up the appropriate response. Don't change this once set!</small>
   </div>
 
   <div class="form-group col-12">
-    <%= f.label :body %>
-    <%= f.text_area :body, class: "form-control form-control-lg", rows: 5 %>
+    <%= f.label :output, "... the bot responds with this text message." %>
+    <%= f.text_area :body, class: "form-control form-control-lg", rows: 5, "aria-describedby": "outputHelp" %>
+    <small id="outputHelp" class="form-text text-muted">Coming soon, the ability to respond with rich media types including links, buttons and photo carousels.</small>
   </div>
 
   <div class="form-group">
-    <%= f.submit %>
+    <%= f.submit "Save", class: "btn btn-primary" %>
   </div>
 <% end %>
