@@ -1,7 +1,7 @@
 namespace :brands do
   desc "fix dupes"
   task dedupe: :environment do
-    Brand.each do |brand|
+    Brand.all.each do |brand|
       if Brand.where(title: brand.title).count > 1
         puts "De-duping brand ##{brand.id} - #{brand.title}"
         all_brands = Brand.where(title: brand.title)
